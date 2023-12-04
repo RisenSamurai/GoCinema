@@ -88,7 +88,7 @@ func (h *Handler) AddActor(c *gin.Context) {
 			})
 			return
 		}
-		actor.Images = append(actor.Images, filePath)
+		//actor.Images = append(actor.Images, filePath)
 	}
 
 	message, err := h.pushActor(c, actor)
@@ -107,6 +107,31 @@ func (h *Handler) AddActor(c *gin.Context) {
 }
 
 func (h *Handler) AddMovie(c *gin.Context) {
+
+	var movie database.Movie
+	const maxFileSize = 10 << 20
+
+	err := c.Request.ParseMultipartForm(maxFileSize)
+	if err != nil {
+		log.Println("Error parsing multipart form")
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	form, _ := c.MultipartForm()
+
+	files := form.File["images"]
+
+
+	movie.Name = c.PostForm("movie-name")
+	movie.Year = c.PostForm("year")
+	movie.Directors = c.PostFormArray("director")
+
+
+
+
 
 }
 

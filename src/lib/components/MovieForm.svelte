@@ -116,6 +116,47 @@
     }
 
 
+   async function sendData(event) {
+
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        images.forEach(image => {
+            formData.append('images', image);
+        });
+
+        try {
+            const response = await fetch("http://localhost:8000/add-movie", {
+            method: 'POST',
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            console.log('Actor added successfully:', message = data.message);
+        } else {
+            console.error('Error adding actor:', message = data.message);
+        }
+
+
+
+        } catch(e) {
+            console.error(e);
+        }
+
+        
+
+
+
+
+
+
+    }
+
+
 </script>
 
 
@@ -127,7 +168,7 @@
         <label class="text-cinema-text" for="movie-name">Movie Name</label>
         <input class="p-1 rounded-lg mb-2" type="text" name="movie-name" id="movie-name">
         <label class="text-cinema-text" for="year">Year</label>
-        <input class="p-1 rounded-lg mb-2" type="text" name="lastName" id="year">
+        <input class="p-1 rounded-lg mb-2" type="text" name="year" id="year">
     </fieldset>
 
     <fieldset class="flex flex-col p-2">

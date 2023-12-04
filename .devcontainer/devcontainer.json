@@ -1,0 +1,22 @@
+{
+	"name": "GoCinema Dev Container",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "backend",
+	"workspaceFolder": "/app",
+	"extensions": [
+	  "golang.go",
+	  "esbenp.prettier-vscode",
+	  "dbaeumer.vscode-eslint",
+	  "svelte.svelte-vscode",
+	  "ms-azuretools.vscode-docker"
+	],
+	"settings": {
+	  "terminal.integrated.shell.linux": "/bin/sh",
+	  "editor.formatOnSave": true,
+	  "go.toolsManagement.autoUpdate": true
+	},
+	"postCreateCommand": "go mod tidy && npm install && npm run build",
+	"runServices": ["backend", "frontend"],
+	"forwardPorts": [8000, 5173]
+  }
+  
