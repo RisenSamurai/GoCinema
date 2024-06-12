@@ -10,9 +10,9 @@ import HomeMoviesSlider from "$lib/components/HomeMoviesSlider.svelte";
 
 
 <main class="flex flex-col px-2 bg-cinema-primary">
-    <HomeMoviesSlider header="New Movies"/>
-    <HomeMoviesSlider header="Hot News" background="bg-white"/>
-    <HomeMoviesSlider header="Popular Series"/>
+    <HomeMoviesSlider header="New Movies" type="movies"/>
+    <HomeMoviesSlider header="Hot News" type="news" />
+    <HomeMoviesSlider header="TV Shows" type="series"/>
 </main>
 
 
