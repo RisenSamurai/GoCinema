@@ -11,5 +11,7 @@
         <img class="object-cover rounded-lg w-full h-auto" src={poster} alt={title} />
     </a>
     <a href="#" class="text-cinema-text line-clamp-2 py-4 ">{title}</a>
-    <a href="#" class="text-cinema-text line-clamp-2 py-4 "><p>{content}</p></a>
+    <a href="#" class="flex text-cinema-text py-4 ">
+        <p class="line-clamp-1">{content}</p>
+    </a>
 </div>
