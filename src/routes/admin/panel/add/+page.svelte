@@ -4,6 +4,7 @@
 import Headers from "$lib/components/Headers.svelte";
 import Button from "$lib/components/Button.svelte";
 import ActorForm from "$lib/components/ActorForm.svelte";
+	import type { EventHandler } from "svelte/elements";
 
 let cardType: string = "type";
 
@@ -21,6 +22,12 @@ let buttons = [
         name: "Actor",
     }
 ];
+
+let actorImages = [];
+
+function pushImage(event) {
+    actorImages = Array.from(event.target.file);
+}
 
 function changeCardType(card: string) {
     cardType = card.toLowerCase();

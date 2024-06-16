@@ -23,5 +23,17 @@
         </select>
         <label class="text-cinema-text" for="pob">Place of Birth</label>
         <input class="p-1 rounded-lg mb-2" type="text" name="pob" id="pob">
+
+        <label class="text-cinema-text" for="biog">Biography</label>
+        <textarea class="p-1 rounded-lg mb-2" name="biog" id="biog" cols="10" rows="5"></textarea>
+    </fieldset>
+
+    <fieldset class="flex flex-col p-2">
+        <legend class="flex font-bold text-cinema-text text-xl">
+            Media
+        </legend>
+        <label class="text-cinema-text " for="image">Add Images</label>
+        <input type="file">
+        <button class="bg-cinema-highlight text-cinema-text rounded-xl mt-4 p-2 ">Push</button>
     </fieldset>
 </form>
