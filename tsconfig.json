@@ -1,14 +1,16 @@
 {
-	"extends": "@tsconfig/svelte/tsconfig.json",
+	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
 		"paths": {
-			"$lib/*": ["src/lib/*"]
+			"$lib/*": ["./src/lib/*"]
 		}
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules/*", "__sapper__/*", "public/*"]
 }
+
+

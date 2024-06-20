@@ -2,6 +2,7 @@ package main
 
 import (
 	"GoCinema/src/lib/server/database"
+	"GoCinema/src/lib/server/handlers"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,6 +23,8 @@ func main() {
 	serverAddress := os.Getenv("SERVER_ADDRESS")
 
 	database.Cn() //Database connection
+
+	r.POST("/add-actor", handlers.AddActor)
 
 	r.Run(serverAddress)
 }
