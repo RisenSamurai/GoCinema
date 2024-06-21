@@ -28,7 +28,6 @@ type Series struct {
 }
 
 type Actor struct {
-	Id         string    `bson:"id"`
 	Name       string    `bson:"name"`
 	Surname    string    `bson:"surname"`
 	Age        int       `bson:"age"`

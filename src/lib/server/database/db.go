@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -18,11 +19,10 @@ func Cn() (*mongo.Client, error) {
 		log.Fatal(err)
 	}
 
-	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
+	if err = client.Database("admin").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Err(); err != nil {
+
+		panic(err)
+	}
 
 	return client, nil
 
