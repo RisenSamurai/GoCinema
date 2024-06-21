@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func Cn() {
+func Cn() (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	dbAddress := os.Getenv("DB_URL")
@@ -23,5 +23,7 @@ func Cn() {
 			panic(err)
 		}
 	}()
+
+	return client, nil
 
 }

@@ -3,12 +3,21 @@ package handlers
 import (
 	"GoCinema/src/lib/server/database"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 	"os"
 	"path/filepath"
 	"time"
 )
 
-func AddActor(c *gin.Context) {
+type Handler struct {
+	Client *mongo.Client
+}
+
+func NewHandler(client *mongo.Client) *Handler {
+	return &Handler{Client: client}
+}
+
+func (h *Handler) AddActor(c *gin.Context) {
 	var actor database.Actor
 
 	const maxFileSize = 10 << 20
@@ -65,6 +74,17 @@ func AddActor(c *gin.Context) {
 
 }
 
-func pushActor(actor database.Actor) {
+func (h *Handler) pushActor(c *gin.Context, actor database.Actor) (string, error) {
+
+	collection := h.Client.Database("GoCinema").Collection("actors")
+
+	_, err := collection.InsertOne(c.Request.Context(), actor)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+	return "Actor added", nil
 
 }
