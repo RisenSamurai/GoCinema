@@ -72,6 +72,18 @@ func (h *Handler) AddActor(c *gin.Context) {
 
 	}
 
+	message, err := h.pushActor(c, actor)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	} else {
+		c.JSON(200, gin.H{
+			"message": message,
+		})
+	}
+
 }
 
 func (h *Handler) pushActor(c *gin.Context, actor database.Actor) (string, error) {
