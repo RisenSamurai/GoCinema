@@ -1,6 +1,7 @@
-# create-svelte
+# GoCinema
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+A project that was built with Golang along with the really great Gin framework.
+SvelteKit, and my favorite MongoDb.
 
 ## Creating a project
 
