@@ -88,7 +88,11 @@ func (h *Handler) AddActor(c *gin.Context) {
 			})
 			return
 		}
+<<<<<<< HEAD
 		//actor.Images = append(actor.Images, filePath)
+=======
+		actor.Images = append(actor.Images, filePath)
+>>>>>>> c5b2d41 (Add files via upload)
 	}
 
 	message, err := h.pushActor(c, actor)
@@ -106,6 +110,7 @@ func (h *Handler) AddActor(c *gin.Context) {
 
 }
 
+<<<<<<< HEAD
 func (h *Handler) AddMovie(c *gin.Context) {
 
 	var movie database.Movie
@@ -135,6 +140,8 @@ func (h *Handler) AddMovie(c *gin.Context) {
 
 }
 
+=======
+>>>>>>> c5b2d41 (Add files via upload)
 func (h *Handler) pushActor(c *gin.Context, actor database.Actor) (string, error) {
 
 	collection := h.Client.Database("GoCinema").Collection("Actors")

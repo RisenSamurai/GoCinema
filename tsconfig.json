@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
@@ -14,3 +15,21 @@
 }
 
 
+=======
+{
+	"extends": "./.svelte-kit/tsconfig.json",
+	"compilerOptions": {
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"paths": {
+			"$lib/*": ["./src/lib/*"]
+		}
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules/*", "__sapper__/*", "public/*"]
+}
+
+
+>>>>>>> c5b2d41 (Add files via upload)
