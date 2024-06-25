@@ -3,6 +3,7 @@ package handlers
 import (
 	"GoCinema/src/lib/server/database"
 	"github.com/gin-gonic/gin"
+	age2 "github.com/theTardigrade/golang-age"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"os"
@@ -56,6 +57,9 @@ func (h *Handler) AddActor(c *gin.Context) {
 
 		return
 	}
+
+	age := age2.CalculateToNow(birthday)
+	actor.Age = age
 	actor.Birthday = birthday
 	actor.Gender = c.PostForm("gender")
 	actor.Birthplace = c.PostForm("pob")
@@ -76,8 +80,6 @@ func (h *Handler) AddActor(c *gin.Context) {
 	for _, file := range files {
 		filePath := filepath.Join(uploadDir, file.Filename)
 
-		actor.Images = append(actor.Images, filePath)
-
 		if err := c.SaveUploadedFile(file, filePath); err != nil {
 			log.Println("Error saving uploaded file", err)
 			c.JSON(500, gin.H{
@@ -85,7 +87,7 @@ func (h *Handler) AddActor(c *gin.Context) {
 			})
 			return
 		}
-
+		actor.Images = append(actor.Images, filePath)
 	}
 
 	message, err := h.pushActor(c, actor)
