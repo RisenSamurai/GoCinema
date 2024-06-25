@@ -63,7 +63,8 @@ func (h *Handler) AddActor(c *gin.Context) {
 	actor.Birthday = birthday
 	actor.Gender = c.PostForm("gender")
 	actor.Birthplace = c.PostForm("pob")
-	actor.Bio = c.PostForm("bio")
+	actor.Bio = c.PostForm("biog")
+	actor.Created = time.Now()
 
 	dir := filepath.Dir("./static/images/actors/")
 	uploadDir := filepath.Join(dir, actor.Name+actor.Surname+"/")

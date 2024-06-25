@@ -4,7 +4,6 @@
     let previews = [];
     let message = "";
 
-    let biog;
 
     function pushImages(event) {
 
@@ -27,7 +26,6 @@
 
         const form = event.target;
         const formData = new FormData(form);
-        formData.append("biog", biog)
 
         images.forEach(image => {
             formData.append('images', image);
@@ -69,7 +67,7 @@
         <label class="text-cinema-text" for="pob">Place of Birth</label>
         <input class="p-1 rounded-lg mb-2" type="text" name="pob" id="pob">
         <label class="text-cinema-text" for="biog">Biography</label>
-        <textarea bind:value={biog} class="p-1 rounded-lg mb-2" name="biog" id="biog" cols="10" rows="5"></textarea>
+        <textarea class="p-1 rounded-lg mb-2" name="biog" id="biog" cols="10" rows="5"></textarea>
     </fieldset>
     <fieldset class="flex flex-col p-2">
         <legend class="flex font-bold text-cinema-text text-xl">Media</legend>
