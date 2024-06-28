@@ -1,5 +1,7 @@
 <script>
 
+    import Button from "$lib/components/Button.svelte";
+
     let message = "";
     let director = "";
     let directors = [];
@@ -28,7 +30,13 @@
     <fieldset class="flex flex-col p-2">
         <legend class="flex font-bold text-cinema-text text-xl">Film Crew</legend>
         <label class="text-cinema-text" for="director">Director</label>
-        <input class="p-1 rounded-lg mb-2" type="text" name="director" id="director">
+        <input bind:value={director} class="p-1 rounded-lg mb-2" type="text" name="director" id="director">
+        {#if director.length > 0}
+            <div class="flex flex-col">
+
+            </div>
+        {/if}
+        <Button name="Push" on:click={pushDirector} />
 
     </fieldset>
 
