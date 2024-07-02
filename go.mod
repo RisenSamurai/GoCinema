@@ -1,6 +1,6 @@
 module GoCinema
 
-go 1.22.4
+go1.21.0
 
 require (
 	github.com/gin-gonic/gin v1.10.0
