@@ -106,6 +106,10 @@ func (h *Handler) AddActor(c *gin.Context) {
 
 }
 
+func (h *Handler) AddMovie(c *gin.Context) {
+
+}
+
 func (h *Handler) pushActor(c *gin.Context, actor database.Actor) (string, error) {
 
 	collection := h.Client.Database("GoCinema").Collection("Actors")

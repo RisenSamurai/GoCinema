@@ -32,7 +32,13 @@ func main() {
 	handler := handlers.NewHandler(client)
 
 	r.POST("/add-actor", handler.AddActor)
+	r.POST("/add-movie", handler.AddMovie)
 
 	r.Static("images/", "./static/")
-	r.Run(serverAddress)
+
+	err = r.Run(serverAddress)
+	if err != nil {
+		log.Println("Error starting server", err)
+		return
+	}
 }
