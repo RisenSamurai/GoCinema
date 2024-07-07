@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"GoCinema/src/lib/server/database"
-	"github.com/gin-gonic/gin"
-	age2 "github.com/theTardigrade/golang-age"
-	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	age2 "github.com/theTardigrade/golang-age"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Handler struct {
@@ -88,7 +89,7 @@ func (h *Handler) AddActor(c *gin.Context) {
 			})
 			return
 		}
-		actor.Images = append(actor.Images, filePath)
+		//actor.Images = append(actor.Images, filePath)
 	}
 
 	message, err := h.pushActor(c, actor)
@@ -103,6 +104,30 @@ func (h *Handler) AddActor(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": message,
 	})
+
+}
+
+func (h *Handler) AddMovie(c *gin.Context) {
+
+	var movie database.Movie
+	const maxFileSize = 10 << 20
+
+	err := c.Request.ParseMultipartForm(maxFileSize)
+	if err != nil {
+		log.Println("Error parsing multipart form")
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	form, _ := c.MultipartForm()
+
+	files := form.File["images"]
+
+	movie.Name = c.PostForm("movie-name")
+	movie.Year = c.PostForm("year")
+	movie.Directors = c.PostFormArray("director")
 
 }
 
