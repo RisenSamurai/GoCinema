@@ -147,9 +147,6 @@
             console.error(e);
         }
 
-        
-
-
 
 
 
@@ -192,7 +189,7 @@
         <Button padding="p-2" name="Push" on:click={() => pushDirector(director, "d")} />
 
         <label class="text-cinema-text" for="director">Writers</label>
-        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="director" id="director">
+        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="writers" id="director">
 
         {#if directors.length > 0}
             <div class="flex flex-wrap">
@@ -211,7 +208,7 @@
 
 
         <label class="text-cinema-text" for="director">Producers</label>
-        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="director" id="director">
+        <input bind:value={producer} class="p-1 rounded-lg mb-2" type="text" name="producers" id="director">
 
         {#if producers.length > 0}
             <div class="flex flex-wrap">
@@ -229,7 +226,7 @@
         <Button padding="p-2" name="Push" on:click={() => pushDirector(producer, "p")} />
 
         <label class="text-cinema-text" for="director">Editors</label>
-        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="director" id="director">
+        <input bind:value={editor} class="p-1 rounded-lg mb-2" type="text" name="editors" id="director">
 
         {#if editors.length > 0}
             <div class="flex flex-wrap">
@@ -247,7 +244,7 @@
         <Button padding="p-2" name="Push" on:click={() => pushDirector(editor, "e")} />
 
         <label class="text-cinema-text" for="director">Cameras</label>
-        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="director" id="director">
+        <input bind:value={camera} class="p-1 rounded-lg mb-2" type="text" name="cameras" id="director">
 
         {#if cameras.length > 0}
             <div class="flex flex-wrap">
@@ -265,7 +262,7 @@
         <Button padding="p-2" name="Push" on:click={() => pushDirector(camera, "c")} />
 
         <label class="text-cinema-text" for="director">Genres</label>
-        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="director" id="director">
+        <input bind:value={genre} class="p-1 rounded-lg mb-2" type="text" name="genres" id="director">
 
         {#if genres.length > 0}
             <div class="flex flex-wrap">
@@ -286,13 +283,13 @@
 
     <fieldset class="flex flex-col p-2">
         <legend class="flex font-bold text-cinema-text text-xl">Release date</legend>
-        <input type="date" name="date">
+        <input type="date" name="releaseDate">
     </fieldset>
 
     <fieldset class="flex flex-col p-2">
         <legend class="flex font-bold text-cinema-text text-xl">Other</legend>
         <label class="text-cinema-text" for="country">Countries</label>
-        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="country" id="country">
+        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="countries" id="country">
 
         {#if countries.length > 0}
             <div class="flex flex-wrap">
