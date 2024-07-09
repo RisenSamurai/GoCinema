@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"GoCinema/src/lib/server"
 	"GoCinema/src/lib/server/database"
 	"log"
 	"os"
@@ -122,10 +123,6 @@ func (h *Handler) AddMovie(c *gin.Context) {
 		return
 	}
 
-	form, _ := c.MultipartForm()
-
-	files := form.File["images"]
-
 	releaseDateStr := c.PostForm("releaseDate")
 	durationStr := c.PostForm("duration")
 
@@ -162,33 +159,47 @@ func (h *Handler) AddMovie(c *gin.Context) {
 	dir := filepath.Dir("./static/images/movies/")
 	uploadDir := filepath.Join(dir, movie.Name+"/")
 
-	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
+	err = server.DirExists(uploadDir)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
 
-		err = os.Mkdir(uploadDir, 0755)
-		if err != nil {
-			log.Println("Error creating upload dir", err)
-			c.JSON(500, gin.H{
-				"message": err.Error(),
-			})
-			return
-		}
-
-		log.Println("Directory created successfully", uploadDir)
-
+		return
 	}
 
-	for _, file := range files {
+	form, err := c.MultipartForm()
+	if err != nil {
+		log.Println("Error retrieving multipart form")
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
 
-		filePath := filepath.Join(uploadDir, file.Filename)
+	files := form.File["images"]
 
-		if err := c.SaveUploadedFile(file, filePath); err != nil {
-			log.Println("Error saving uploaded file", err)
-			c.JSON(500, gin.H{
-				"message": err.Error(),
-			})
-			return
-		}
+	// Create a slice of post values (field names) for each file
+	var postValues []string
+	for _ = range files {
+		postValues = append(postValues, "images")
+	}
 
+	err = server.UploadImages(c, uploadDir, postValues)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err = server.UploadImage(c, uploadDir, "poster")
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+
+		return
 	}
 
 }

@@ -1,7 +1,9 @@
 package server
 
 import (
+	"github.com/gin-gonic/gin"
 	"log"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 )
@@ -23,48 +25,57 @@ func DirExists(path string) error {
 	return nil
 }
 
-func WriteImages(dir string, images map[string]string) error {
+func UploadImage(c *gin.Context, dir string, postValue string) error {
 
-	if err := DirExists(dir); err != nil {
+	var file *multipart.FileHeader
+
+	file, err := c.FormFile(postValue)
+	if err != nil {
+		log.Println("Error getting file: ", err)
 		return err
 	}
 
-	for filename, content := range images {
-		filePath := filepath.Join(dir, filename)
-		if err := WriteImage(filePath, filename, content); err != nil {
-			return err
-		}
+	allowedTypes := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/webp": true,
+	}
+
+	if !allowedTypes[file.Header.Get("Content-Type")] {
+		c.JSON(500, gin.H{
+			"message": "File content type not allowed",
+		})
+
+		return err
+	}
+
+	err = DirExists(dir)
+	if err != nil {
+		log.Println("Error checking directory: ", err)
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return err
+	}
+
+	filename := filepath.Join(dir, file.Filename)
+
+	if err := c.SaveUploadedFile(file, filename); err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+
+		return err
 	}
 
 	return nil
-
 }
 
-func WriteImage(dir string, fileName, content string) error {
-	if err := DirExists(dir); err != nil {
-		return err
-	}
-
-	filePath := filepath.Join(dir, fileName)
-	file, err := os.Create(filePath)
-	if err != nil {
-		log.Println("Error creating file: ", err)
-		return err
-	}
-
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			log.Println("Error closing file: ", err)
+func UploadImages(c *gin.Context, dir string, postValues []string) error {
+	for _, postValue := range postValues {
+		if err := UploadImage(c, dir, postValue); err != nil {
+			return err
 		}
-	}(file)
-
-	_, err = file.WriteString(content)
-	if err != nil {
-		log.Println("Error writing to file: ", err)
 	}
-
-	log.Println("Created file: ", filePath)
-
 	return nil
 }

@@ -56,6 +56,9 @@
                 actors = [...actors, person];
                 actor = "";
             } break;
+            case "country": {
+                countries = [...countries, person]
+            } break;
 
             default: "Error"; break;
         }
@@ -93,6 +96,9 @@
             case "a": {
                 actors = actors.filter((_, i) => i !== index);
             } break;
+            case "country": {
+                countries = countries.filter((_, i) => i !== index);
+            }break;
             default: "Error"; break;
         }
 
@@ -289,7 +295,7 @@
     <fieldset class="flex flex-col p-2">
         <legend class="flex font-bold text-cinema-text text-xl">Other</legend>
         <label class="text-cinema-text" for="country">Countries</label>
-        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="countries" id="country">
+        <input bind:value={country} class="p-1 rounded-lg mb-2" type="text" name="countries" id="country">
 
         {#if countries.length > 0}
             <div class="flex flex-wrap">
@@ -329,7 +335,7 @@
 
             </div>
         {/if}
-        <Button padding="p-2" name="Push" on:click={() => pushDirector(actors, "a")} />
+        <Button padding="p-2" name="Push" on:click={() => pushDirector(actor, "a")} />
 
 
 
