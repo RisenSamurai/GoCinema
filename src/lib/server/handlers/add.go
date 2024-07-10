@@ -3,6 +3,7 @@ package handlers
 import (
 	"GoCinema/src/lib/server"
 	"GoCinema/src/lib/server/database"
+	"context"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,6 +14,10 @@ import (
 	age2 "github.com/theTardigrade/golang-age"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+type MovieCollection interface {
+	InsertOne(ctx context.Context, movie interface{}) (*mongo.InsertOneResult, error)
+}
 
 type Handler struct {
 	Client *mongo.Client
@@ -178,30 +183,83 @@ func (h *Handler) AddMovie(c *gin.Context) {
 	}
 
 	files := form.File["images"]
-
-	// Create a slice of post values (field names) for each file
-	var postValues []string
-	for _ = range files {
-		postValues = append(postValues, "images")
-	}
-
-	err = server.UploadImages(c, uploadDir, postValues)
-	if err != nil {
-		c.JSON(500, gin.H{
-			"message": err.Error(),
+	if len(files) == 0 {
+		c.JSON(400, gin.H{
+			"message": "No files uploaded",
 		})
 		return
 	}
 
-	err = server.UploadImage(c, uploadDir, "poster")
+	allowedTypes := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/webp": true,
+	}
+
+	for _, fileHeader := range files {
+		if !allowedTypes[fileHeader.Header.Get("Content-Type")] {
+			c.JSON(400, gin.H{
+				"message": "File content type not allowed",
+			})
+			return
+		}
+
+		filePath := filepath.Join(uploadDir, fileHeader.Filename)
+		if err := c.SaveUploadedFile(fileHeader, filePath); err != nil {
+			log.Println("Error saving file:", err)
+			c.JSON(500, gin.H{
+				"message": "Failed to save file",
+			})
+			return
+		}
+
+		movie.Images = append(movie.Images, filePath)
+	}
+
+	file, err := c.FormFile("poster")
 	if err != nil {
+		log.Println("Error retrieving poster")
 		c.JSON(500, gin.H{
 			"message": err.Error(),
 		})
-
+	}
+	if len(files) == 0 {
+		c.JSON(400, gin.H{
+			"message": "No files uploaded",
+		})
 		return
 	}
 
+	movie.Poster = filepath.Join(uploadDir, file.Filename)
+
+	_, err = h.pushMovie(c, movie)
+	if err != nil {
+		log.Println("Error pushing movie")
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+	c.JSON(200, gin.H{
+		"message": "Movie added",
+	})
+
+}
+
+func (h *Handler) pushMovie(c *gin.Context, movie database.Movie) (string, error) {
+
+	collection := h.Client.Database("GoCinema").Collection("Movies")
+
+	_, err := collection.InsertOne(c.Request.Context(), movie)
+	if err != nil {
+		log.Println("Error inserting movie", err)
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return "", err
+	}
+
+	return "Movie added", nil
 }
 
 func (h *Handler) pushActor(c *gin.Context, actor database.Actor) (string, error) {

@@ -154,9 +154,6 @@
         }
 
 
-
-
-
     }
 
 
@@ -165,7 +162,7 @@
 
 
 <h2 class="text-2xl text-white">{#if message}{message}{/if}</h2>
-<form on:submit class="flex flex-col bg-cinema-secondary w-full">
+<form on:submit={sendData} class="flex flex-col bg-cinema-secondary w-full">
     <fieldset class="flex flex-col p-2">
         <legend class="flex font-bold text-cinema-text text-xl">Basic Info</legend>
         <label class="text-cinema-text" for="movie-name">Movie Name</label>
@@ -363,5 +360,7 @@
 
 
     </fieldset>
+
+    <input type="submit" value="Send" class="bg-cinema-highlight text-cinema-text">
 
 </form>

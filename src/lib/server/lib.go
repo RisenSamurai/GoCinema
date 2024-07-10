@@ -25,14 +25,14 @@ func DirExists(path string) error {
 	return nil
 }
 
-func UploadImage(c *gin.Context, dir string, postValue string) error {
+func UploadImage(c *gin.Context, dir string, postValue string) (string, error) {
 
 	var file *multipart.FileHeader
 
 	file, err := c.FormFile(postValue)
 	if err != nil {
 		log.Println("Error getting file: ", err)
-		return err
+		return "", err
 	}
 
 	allowedTypes := map[string]bool{
@@ -46,7 +46,7 @@ func UploadImage(c *gin.Context, dir string, postValue string) error {
 			"message": "File content type not allowed",
 		})
 
-		return err
+		return "", err
 	}
 
 	err = DirExists(dir)
@@ -55,7 +55,7 @@ func UploadImage(c *gin.Context, dir string, postValue string) error {
 		c.JSON(500, gin.H{
 			"message": err.Error(),
 		})
-		return err
+		return "", err
 	}
 
 	filename := filepath.Join(dir, file.Filename)
@@ -65,17 +65,33 @@ func UploadImage(c *gin.Context, dir string, postValue string) error {
 			"message": err.Error(),
 		})
 
-		return err
+		return "", err
 	}
 
-	return nil
+	return filename, nil
 }
 
-func UploadImages(c *gin.Context, dir string, postValues []string) error {
+func UploadImages(c *gin.Context, dir string, postValues []string) ([]string, error) {
+	var paths []string
 	for _, postValue := range postValues {
-		if err := UploadImage(c, dir, postValue); err != nil {
-			return err
+		path, err := UploadImage(c, dir, postValue)
+		if err != nil {
+			return paths, err
+		}
+		paths = append(paths, path)
+
+		// Save the image path to the database
+		err = saveImagePathToDB(path)
+		if err != nil {
+			log.Println("Error saving image path to database: ", err)
+			return paths, err
 		}
 	}
+	return paths, nil
+}
+
+func saveImagePathToDB(path string) error {
+	// Implement your database logic here
+	log.Println("Saving image path to database: ", path)
 	return nil
 }

@@ -32,6 +32,7 @@ func main() {
 	handler := handlers.NewHandler(client)
 
 	r.POST("/add-actor", handler.AddActor)
+	r.POST("/add-movie", handler.AddMovie)
 
 	r.Static("images/", "./static/")
 	r.Run(serverAddress)
