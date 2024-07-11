@@ -26,6 +26,7 @@
 
 
     function pushDirector(person, type) {
+        event.preventDefault();
 
         switch (type) {
             case "d": {
@@ -67,6 +68,8 @@
     }
 
     function removeDirector(index, type) {
+
+        event.preventDefault();
 
         switch (type) {
             case "d": {
@@ -132,6 +135,15 @@
         images.forEach(image => {
             formData.append('images', image);
         });
+
+       formData.append("directors", JSON.stringify(directors));
+       formData.append("writers", JSON.stringify(writers));
+       formData.append("producers", JSON.stringify(producers));
+       formData.append("editors", JSON.stringify(editors));
+       formData.append("cameras", JSON.stringify(cameras));
+       formData.append("genres", JSON.stringify(genres));
+       formData.append("countries", JSON.stringify(countries));
+       formData.append("actors", JSON.stringify(actors));
 
         try {
             const response = await fetch("http://localhost:8000/add-movie", {
@@ -264,8 +276,8 @@
         {/if}
         <Button padding="p-2" name="Push" on:click={() => pushDirector(camera, "c")} />
 
-        <label class="text-cinema-text" for="director">Genres</label>
-        <input bind:value={genre} class="p-1 rounded-lg mb-2" type="text" name="genres" id="director">
+        <label class="text-cinema-text" for="genres">Genres</label>
+        <input bind:value={genre} class="p-1 rounded-lg mb-2" type="text" name="genres" id="genres">
 
         {#if genres.length > 0}
             <div class="flex flex-wrap">

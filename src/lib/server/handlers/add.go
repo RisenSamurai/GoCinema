@@ -59,8 +59,8 @@ func (h *Handler) AddActor(c *gin.Context) {
 	birthday, err := time.Parse("2006-01-02", birthdayStr)
 	if err != nil {
 		log.Println("Error parsing birthday")
-		c.JSON(500, gin.H{
-			"message": err.Error(),
+		c.JSON(400, gin.H{
+			"message": "Invalid date format" + err.Error(),
 		})
 
 		return
@@ -131,16 +131,19 @@ func (h *Handler) AddMovie(c *gin.Context) {
 	releaseDateStr := c.PostForm("releaseDate")
 	durationStr := c.PostForm("duration")
 
-	duration, err := strconv.ParseFloat(durationStr, 32)
+	duration, err := strconv.ParseFloat(durationStr, 64)
 	if err != nil {
 		log.Println("Error parsing duration")
+		c.JSON(400, gin.H{
+			"message": "Invalid duration format" + err.Error(),
+		})
 	}
 
 	releaseDate, err := time.Parse("2006-01-02", releaseDateStr)
 	if err != nil {
 		log.Println("Error parsing birthday")
-		c.JSON(500, gin.H{
-			"message": err.Error(),
+		c.JSON(400, gin.H{
+			"message": "Invalid date format:" + err.Error(),
 		})
 
 		return
@@ -148,17 +151,17 @@ func (h *Handler) AddMovie(c *gin.Context) {
 
 	movie.Name = c.PostForm("movie-name")
 	movie.Year = c.PostForm("year")
-	movie.Directors = c.PostFormArray("director")
-	movie.Writers = c.PostFormArray("writers")
-	movie.Producers = c.PostFormArray("producers")
-	movie.Editors = c.PostFormArray("editors")
-	movie.Cameras = c.PostFormArray("cameras")
-	movie.Genres = c.PostFormArray("genres")
+	movie.Directors = server.ParseJSONArray(c.PostForm("directors"))
+	movie.Writers = server.ParseJSONArray(c.PostForm("writers"))
+	movie.Producers = server.ParseJSONArray(c.PostForm("producers"))
+	movie.Editors = server.ParseJSONArray(c.PostForm("editors"))
+	movie.Cameras = server.ParseJSONArray(c.PostForm("cameras"))
+	movie.Genres = server.ParseJSONArray(c.PostForm("genres"))
 	movie.ReleaseDate = releaseDate
-	movie.Countries = c.PostFormArray("countries")
+	movie.Countries = server.ParseJSONArray(c.PostForm("countries"))
 	movie.Duration = duration
 	movie.Description = c.PostForm("description")
-	movie.Actors = c.PostFormArray("actors")
+	movie.Actors = server.ParseJSONArray(c.PostForm("actors"))
 	movie.Created = time.Now()
 
 	dir := filepath.Dir("./static/images/movies/")
@@ -230,7 +233,21 @@ func (h *Handler) AddMovie(c *gin.Context) {
 		return
 	}
 
-	movie.Poster = filepath.Join(uploadDir, file.Filename)
+	posterUploadDir := filepath.Join(".static/images/posters/", movie.Name)
+	posterFilePath := filepath.Join(posterUploadDir, file.Filename)
+	err = server.DirExists(posterFilePath)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	movie.Poster = posterFilePath
+	if err := c.SaveUploadedFile(file, movie.Poster); err != nil {
+		log.Println("Error saving file:", err)
+	}
 
 	_, err = h.pushMovie(c, movie)
 	if err != nil {
