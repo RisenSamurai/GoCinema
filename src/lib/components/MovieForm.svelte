@@ -112,7 +112,7 @@
 
         const input = event.target;
         if (input && input.files.length > 0) {
-            const newImages = Array.from(input.files);
+            const newImages = Array.from(input.files).filter(file => !images.includes(file.name));
             const newPreviews = newImages.map(file => URL.createObjectURL(file));
             images = [...images, ...newImages];
             previews = [...previews, ...newPreviews];
