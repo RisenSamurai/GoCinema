@@ -6,23 +6,15 @@ import (
 )
 
 type Movie struct {
-	Id          primitive.ObjectID `bson:"_id,omitempty"`
-	Name        string             `bson:"name"`
-	Year        string             `bson:"year"`
-	Directors   []string           `bson:"directors"`
-	Writers     []string           `bson:"writers"`
-	Producers   []string           `bson:"producers"`
-	Editors     []string           `bson:"editors"`
-	Cameras     []string           `bson:"cameras"`
-	Genres      []string           `bson:"genres"`
-	ReleaseDate time.Time          `bson:"release_date"`
-	Countries   []string           `bson:"countries"`
-	Duration    float64            `bson:"duration"`
-	Description string             `bson:"description"`
-	Poster      string             `bson:"poster"`
-	Images      []string           `bson:"images"`
-	Actors      []string           `bson:"actors"`
-	Created     time.Time          `bson:"created"`
+	Name        string    `json:"name"`
+	Year        string    `json:"year"`
+	Directors   []string  `json:"directors"`
+	ReleaseDate time.Time `json:"release_date"`
+	Duration    float64   `json:"duration"`
+	Description string    `json:"description"`
+	Poster      string    `json:"poster"`
+	Images      []string  `json:"images"`
+	Created     time.Time `json:"created"`
 }
 
 type Series struct {

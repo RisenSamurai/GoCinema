@@ -4,6 +4,7 @@ import (
 	"GoCinema/src/lib/server"
 	"GoCinema/src/lib/server/database"
 	"context"
+	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"os"
 	"path/filepath"
@@ -117,52 +118,56 @@ func (h *Handler) AddActor(c *gin.Context) {
 func (h *Handler) AddMovie(c *gin.Context) {
 
 	var movie database.Movie
-	const maxFileSize = 10 << 20
 
-	err := c.Request.ParseMultipartForm(maxFileSize)
+	log.Println("-We are inside AddMovie")
+
+	if err := c.Request.ParseMultipartForm(10 << 20); err != nil { // 10 MB limit
+		log.Println("Error parsing multipart form", err)
+		c.JSON(400, gin.H{"error": "File too large"})
+		return
+	}
+
+	form, err := c.MultipartForm()
 	if err != nil {
-		log.Println("Error parsing multipart form")
-		c.JSON(500, gin.H{
+		log.Println("Error parsing multipart form", err)
+		c.JSON(400, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	releaseDateStr := c.PostForm("releaseDate")
-	durationStr := c.PostForm("duration")
-
-	duration, err := strconv.ParseFloat(durationStr, 64)
-	if err != nil {
-		log.Println("Error parsing duration")
-		c.JSON(400, gin.H{
-			"message": "Invalid duration format" + err.Error(),
-		})
+	allowedTypes := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/webp": true,
 	}
 
-	releaseDate, err := time.Parse("2006-01-02", releaseDateStr)
-	if err != nil {
-		log.Println("Error parsing birthday")
-		c.JSON(400, gin.H{
-			"message": "Invalid date format:" + err.Error(),
-		})
+	movieDurationStr := c.PostForm("duration")
+	movieDateStr := c.PostForm("releaseDate")
 
+	movieDuration, err := strconv.ParseFloat(movieDurationStr, 64)
+	if err != nil {
+		log.Println("Error parsing duration", err)
+		c.JSON(400, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
-	movie.Name = c.PostForm("movie-name")
-	movie.Year = c.PostForm("year")
-	movie.Directors = server.ParseJSONArray(c.PostForm("directors"))
-	movie.Writers = server.ParseJSONArray(c.PostForm("writers"))
-	movie.Producers = server.ParseJSONArray(c.PostForm("producers"))
-	movie.Editors = server.ParseJSONArray(c.PostForm("editors"))
-	movie.Cameras = server.ParseJSONArray(c.PostForm("cameras"))
-	movie.Genres = server.ParseJSONArray(c.PostForm("genres"))
-	movie.ReleaseDate = releaseDate
-	movie.Countries = server.ParseJSONArray(c.PostForm("countries"))
-	movie.Duration = duration
+	movieDate, err := time.Parse("2006-01-02", movieDateStr)
+	if err != nil {
+		log.Println("Error parsing date", err)
+		c.JSON(400, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	movie.Name = c.PostForm("name")
+	movie.ReleaseDate = movieDate
+	movie.Duration = movieDuration
 	movie.Description = c.PostForm("description")
-	movie.Actors = server.ParseJSONArray(c.PostForm("actors"))
-	movie.Created = time.Now()
+	movie.Year = c.PostForm("year")
 
 	dir := filepath.Dir("./static/images/movies/")
 	uploadDir := filepath.Join(dir, movie.Name+"/")
@@ -176,27 +181,12 @@ func (h *Handler) AddMovie(c *gin.Context) {
 		return
 	}
 
-	form, err := c.MultipartForm()
-	if err != nil {
-		log.Println("Error retrieving multipart form")
-		c.JSON(500, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
 	files := form.File["images"]
 	if len(files) == 0 {
 		c.JSON(400, gin.H{
 			"message": "No files uploaded",
 		})
 		return
-	}
-
-	allowedTypes := map[string]bool{
-		"image/jpeg": true,
-		"image/png":  true,
-		"image/webp": true,
 	}
 
 	for _, fileHeader := range files {
@@ -235,6 +225,7 @@ func (h *Handler) AddMovie(c *gin.Context) {
 
 	posterUploadDir := filepath.Join(".static/images/posters/", movie.Name)
 	posterFilePath := filepath.Join(posterUploadDir, file.Filename)
+
 	err = server.DirExists(posterFilePath)
 	if err != nil {
 		c.JSON(500, gin.H{
@@ -258,7 +249,7 @@ func (h *Handler) AddMovie(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"message": "Movie added",
+		"message": "Movie" + movie.Name + "successfully uploaded",
 	})
 
 }
@@ -267,7 +258,18 @@ func (h *Handler) pushMovie(c *gin.Context, movie database.Movie) (string, error
 
 	collection := h.Client.Database("GoCinema").Collection("Movies")
 
-	_, err := collection.InsertOne(c.Request.Context(), movie)
+	bsonMovie := bson.M{
+		"name":        movie.Name,
+		"year":        movie.Year,
+		"duration":    movie.Duration,
+		"releaseDate": movie.ReleaseDate,
+		"description": movie.Description,
+		"images":      movie.Images,
+		"poster":      movie.Poster,
+		"created":     time.Now(),
+	}
+
+	_, err := collection.InsertOne(c.Request.Context(), bsonMovie)
 	if err != nil {
 		log.Println("Error inserting movie", err)
 		c.JSON(500, gin.H{

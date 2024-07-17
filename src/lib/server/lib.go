@@ -9,10 +9,12 @@ import (
 	"path/filepath"
 )
 
-func ParseJSONArray(jsonStr string) []string {
+func ParseJSONArray(jsonArrayStr string) []string {
 	var result []string
-	if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
+	err := json.Unmarshal([]byte(jsonArrayStr), &result)
+	if err != nil {
 		log.Println("Error parsing JSON array:", err)
+		return nil
 	}
 	return result
 }
