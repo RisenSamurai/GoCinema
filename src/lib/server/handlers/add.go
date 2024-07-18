@@ -56,9 +56,6 @@ func (h *Handler) AddActor(c *gin.Context) {
 
 	birthdayStr := c.PostForm("birthday")
 
-	log.Println("Birthday: ", birthdayStr)
-	log.Println("Name:", actor.Name)
-
 	birthday, err := time.Parse("2006-01-02", birthdayStr)
 	if err != nil {
 		log.Println("Error parsing birthday")
@@ -77,8 +74,7 @@ func (h *Handler) AddActor(c *gin.Context) {
 	actor.Bio = c.PostForm("biog")
 	actor.Created = time.Now()
 
-	dir := filepath.Dir("./static/images/actors/")
-	uploadDir := filepath.Join(dir, actor.Name+actor.Surname+"/")
+	uploadDir := filepath.Join("static", "images", "actors", actor.Name+actor.Surname+"/")
 
 	err = os.Mkdir(uploadDir, 0755)
 	if err != nil {
@@ -89,17 +85,36 @@ func (h *Handler) AddActor(c *gin.Context) {
 		return
 	}
 
-	for _, file := range files {
-		filePath := filepath.Join(uploadDir, file.Filename)
+	allowedTypes := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/webp": true,
+	}
 
-		if err := c.SaveUploadedFile(file, filePath); err != nil {
-			log.Println("Error saving uploaded file", err)
-			c.JSON(500, gin.H{
-				"message": err.Error(),
-			})
-			return
+	if files != nil {
+
+		for _, file := range files {
+			if !allowedTypes[file.Header.Get("Content-Type")] {
+				c.JSON(400, gin.H{
+					"message": "File type not allowed",
+				})
+
+				return
+			}
+			ext := filepath.Ext(file.Filename)
+			uniqueFilename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+
+			filePath := filepath.Join(uploadDir, uniqueFilename)
+
+			if err := c.SaveUploadedFile(file, filePath); err != nil {
+				log.Println("Error saving uploaded file", err)
+				c.JSON(500, gin.H{
+					"message": err.Error(),
+				})
+				return
+			}
+			actor.Images = append(actor.Images, filePath)
 		}
-		//actor.Images = append(actor.Images, filePath)
 	}
 
 	message, err := h.pushActor(c, actor)
