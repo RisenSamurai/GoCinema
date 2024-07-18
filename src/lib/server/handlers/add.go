@@ -144,6 +144,7 @@ func (h *Handler) AddMovie(c *gin.Context) {
 
 	movieDurationStr := c.PostForm("duration")
 	movieDateStr := c.PostForm("releaseDate")
+	movieBudgetStr := c.PostForm("budget")
 
 	movieDuration, err := strconv.ParseFloat(movieDurationStr, 64)
 	if err != nil {
@@ -152,6 +153,14 @@ func (h *Handler) AddMovie(c *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+
+	movieBudget, err := strconv.ParseFloat(movieBudgetStr, 64)
+	if err != nil {
+		log.Println("Error parsing budget", err)
+		c.JSON(400, gin.H{
+			"message": err.Error(),
+		})
 	}
 
 	movieDate, err := time.Parse("2006-01-02", movieDateStr)
@@ -166,6 +175,7 @@ func (h *Handler) AddMovie(c *gin.Context) {
 	movie.Name = c.PostForm("name")
 	movie.ReleaseDate = movieDate
 	movie.Duration = movieDuration
+	movie.Budget = movieBudget
 	movie.Description = c.PostForm("description")
 	movie.Year = c.PostForm("year")
 	movie.Directors = c.PostFormArray("directors")
@@ -289,6 +299,8 @@ func (h *Handler) pushMovie(c *gin.Context, movie database.Movie) (string, error
 		"cameras":     movie.Cameras,
 		"genres":      movie.Genres,
 		"actors":      movie.Actors,
+		"budget":      movie.Budget,
+		"language":    movie.Language,
 		"countries":   movie.Countries,
 		"images":      movie.Images,
 		"poster":      movie.Poster,
