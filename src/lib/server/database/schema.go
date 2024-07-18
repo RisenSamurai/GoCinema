@@ -16,6 +16,9 @@ type Movie struct {
 	Genres      []string  `json:"genres"`
 	Actors      []string  `json:"actors"`
 	Countries   []string  `json:"countries"`
+	Keywords    []string  `json:"keywords"`
+	Budget      float64   `json:"budget"`
+	Language    string    `json:"language"`
 	ReleaseDate time.Time `json:"release_date"`
 	Duration    float64   `json:"duration"`
 	Description string    `json:"description"`

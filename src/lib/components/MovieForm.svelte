@@ -15,6 +15,9 @@
     let genre = "";
     let country = "";
     let actor = "";
+    let keyword = "";
+    let budget = "";
+    let language = "";
 
     let directors = [];
     let writers = [];
@@ -23,10 +26,12 @@
     let cameras = [];
     let genres = [];
     let countries = [];
-    let images = [];
+    let images = []; //files
     let actors = [];
     let previews = [];
-    let poster;
+    let keywords = [];
+    let poster; // file
+
 
     function pushItem(person, type) {
         event.preventDefault();
@@ -64,6 +69,10 @@
                 countries = [...countries, person];
                 country = "";
                 break;
+            case "keyword":
+                keywords = [...keywords, person];
+                keyword = "";
+                break;
             default:
                 console.error("Error: Invalid type");
                 break;
@@ -99,6 +108,9 @@
             case "country":
                 countries = countries.filter((_, i) => i !== index);
                 break;
+            case "keyword":
+                keywords = keywords.filter((_, i) => i !== index);
+                break;
             default:
                 console.error("Error: Invalid type");
                 break;
@@ -127,6 +139,8 @@
         const formData = new FormData();
         formData.append('name', name);
         formData.append('year', year);
+        formData.append('budget', budget);
+        formData.append('language', language);
         directors.forEach(director => {formData.append('directors', director);})
         writers.forEach(    writer  => {formData.append('writers', writer)});
         producers.forEach(  producer => {formData.append('producers', producer)});
@@ -135,6 +149,7 @@
         genres.forEach(     genre   => {formData.append('genres', genre)});
         actors.forEach(     actor   => {formData.append('actors', actor)});
         countries.forEach(  country => {formData.append('countries', country)});
+        keywords.forEach(   keyword => {formData.append('keywords', keyword)});
 
         formData.append('releaseDate', releaseDate);
         formData.append('duration', duration);
@@ -313,6 +328,12 @@
         <label class="text-cinema-text" for="duration">Duration(min)</label>
         <input bind:value={duration} class="p-1 rounded-lg mb-2" type="text" name="duration" id="duration">
 
+        <label class="text-cinema-text" for="budget">Budget</label>
+        <input bind:value={budget} class="p-1 rounded-lg mb-2" type="text" name="budget" id="budget">
+
+        <label class="text-cinema-text" for="language">Language</label>
+        <input bind:value={language} class="p-1 rounded-lg mb-2" type="text" name="language" id="language">
+
         <label class="text-cinema-text" for="description">Description</label>
         <textarea bind:value={description} class="p-1 rounded-lg mb-2" name="description" id="description"
                   cols="10" rows="5">
@@ -333,6 +354,22 @@
             </div>
         {/if}
         <Button padding="p-2" name="Push" on:click={() => pushItem(actor, "a")} />
+
+        <label class="text-cinema-text" for="actors">Keywords</label>
+        <input bind:value={keyword} class="p-1 rounded-lg mb-2" type="text" name="actors" id="actors">
+
+        {#if keywords.length > 0}
+            <div class="flex flex-wrap">
+                {#each keywords as keyword, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{keyword}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "keyword")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(keyword, "keyword")} />
 
 
     </fieldset>

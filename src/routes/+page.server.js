@@ -1,6 +1,6 @@
 export async function load({ fetch }) {
-    const respone = await fetch("http://localhost:8000/fetch-mainpage-items");
-    const items = await respone.json();
+    const response = await fetch("http://localhost:8000/fetch-mainpage-items");
+    const items = await response.json();
 
     return {
         items
