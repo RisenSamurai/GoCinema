@@ -195,6 +195,14 @@ func (h *Handler) AddMovie(c *gin.Context) {
 	movie.Year = c.PostForm("year")
 	movie.Directors = c.PostFormArray("directors")
 	movie.Writers = c.PostFormArray("writers")
+	movie.Producers = c.PostFormArray("producers")
+	movie.Actors = c.PostFormArray("actors")
+	movie.Countries = c.PostFormArray("countries")
+	movie.Genres = c.PostFormArray("genres")
+	movie.Cameras = c.PostFormArray("cameras")
+	movie.Editors = c.PostFormArray("editors")
+	movie.Keywords = c.PostFormArray("keywords")
+	movie.Language = c.PostForm("language")
 
 	uploadDir := filepath.Join("static", "images", "movies", movie.Name)
 
