@@ -1,23 +1,12 @@
 package server
 
 import (
-	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"log"
 	"mime/multipart"
 	"os"
 	"path/filepath"
 )
-
-func ParseJSONArray(jsonArrayStr string) []string {
-	var result []string
-	err := json.Unmarshal([]byte(jsonArrayStr), &result)
-	if err != nil {
-		log.Println("Error parsing JSON array:", err)
-		return nil
-	}
-	return result
-}
 
 func DirExists(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {

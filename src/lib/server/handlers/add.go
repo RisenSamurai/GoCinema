@@ -4,8 +4,10 @@ import (
 	"GoCinema/src/lib/server"
 	"GoCinema/src/lib/server/database"
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -119,8 +121,6 @@ func (h *Handler) AddMovie(c *gin.Context) {
 
 	var movie database.Movie
 
-	log.Println("-We are inside AddMovie")
-
 	if err := c.Request.ParseMultipartForm(10 << 20); err != nil { // 10 MB limit
 		log.Println("Error parsing multipart form", err)
 		c.JSON(400, gin.H{"error": "File too large"})
@@ -168,9 +168,10 @@ func (h *Handler) AddMovie(c *gin.Context) {
 	movie.Duration = movieDuration
 	movie.Description = c.PostForm("description")
 	movie.Year = c.PostForm("year")
+	movie.Directors = c.PostFormArray("directors")
+	movie.Writers = c.PostFormArray("writers")
 
-	dir := filepath.Dir("./static/images/movies/")
-	uploadDir := filepath.Join(dir, movie.Name+"/")
+	uploadDir := filepath.Join("static", "images", "movies", movie.Name)
 
 	err = server.DirExists(uploadDir)
 	if err != nil {
@@ -189,55 +190,72 @@ func (h *Handler) AddMovie(c *gin.Context) {
 		return
 	}
 
-	for _, fileHeader := range files {
-		if !allowedTypes[fileHeader.Header.Get("Content-Type")] {
+	if files != nil {
+
+		for _, fileHeader := range files {
+			if !allowedTypes[fileHeader.Header.Get("Content-Type")] {
+				c.JSON(400, gin.H{
+					"message": "File content type not allowed",
+				})
+				return
+			}
+
+			ext := filepath.Ext(fileHeader.Filename)
+			uniqueFilename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+
+			filePath := filepath.Join(uploadDir, uniqueFilename)
+			if err := c.SaveUploadedFile(fileHeader, filePath); err != nil {
+				log.Println("Error saving file:", err)
+				c.JSON(500, gin.H{
+					"message": "Failed to save file",
+				})
+				return
+			}
+
+			movie.Images = append(movie.Images, filePath)
+		}
+	}
+
+	file, err := c.FormFile("poster")
+	if err != nil {
+		log.Println("Error retrieving poster", err)
+		c.JSON(400, gin.H{
+			"message": err.Error(),
+		})
+
+		return
+	}
+	if file != nil {
+
+		if !allowedTypes[file.Header.Get("Content-Type")] {
 			c.JSON(400, gin.H{
 				"message": "File content type not allowed",
 			})
 			return
 		}
-
-		filePath := filepath.Join(uploadDir, fileHeader.Filename)
-		if err := c.SaveUploadedFile(fileHeader, filePath); err != nil {
-			log.Println("Error saving file:", err)
-			c.JSON(500, gin.H{
-				"message": "Failed to save file",
-			})
+		// Create the directory for posters if it doesn't exist
+		posterUploadDir := filepath.Join("static", "images", "posters", movie.Name)
+		if err := os.MkdirAll(posterUploadDir, 0755); err != nil {
+			log.Println("Error creating poster directory:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create poster directory"})
 			return
 		}
 
-		movie.Images = append(movie.Images, filePath)
-	}
+		// Generate a unique filename
+		ext := filepath.Ext(file.Filename)
+		uniqueFilename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
 
-	file, err := c.FormFile("poster")
-	if err != nil {
-		log.Println("Error retrieving poster")
-		c.JSON(500, gin.H{
-			"message": err.Error(),
-		})
-	}
-	if len(files) == 0 {
-		c.JSON(400, gin.H{
-			"message": "No files uploaded",
-		})
-		return
-	}
+		// Create the full file path
+		posterFilePath := filepath.Join(posterUploadDir, uniqueFilename)
 
-	posterUploadDir := filepath.Join(".static/images/posters/", movie.Name)
-	posterFilePath := filepath.Join(posterUploadDir, file.Filename)
+		// Save the file
+		if err := c.SaveUploadedFile(file, posterFilePath); err != nil {
+			log.Println("Error saving poster file:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save poster file"})
+			return
+		}
 
-	err = server.DirExists(posterFilePath)
-	if err != nil {
-		c.JSON(500, gin.H{
-			"message": err.Error(),
-		})
-
-		return
-	}
-
-	movie.Poster = posterFilePath
-	if err := c.SaveUploadedFile(file, movie.Poster); err != nil {
-		log.Println("Error saving file:", err)
+		movie.Poster = filepath.Join("images", "posters", movie.Name, uniqueFilename)
 	}
 
 	_, err = h.pushMovie(c, movie)
@@ -249,7 +267,7 @@ func (h *Handler) AddMovie(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"message": "Movie" + movie.Name + "successfully uploaded",
+		"message": "Movie successfully uploaded",
 	})
 
 }
@@ -264,6 +282,14 @@ func (h *Handler) pushMovie(c *gin.Context, movie database.Movie) (string, error
 		"duration":    movie.Duration,
 		"releaseDate": movie.ReleaseDate,
 		"description": movie.Description,
+		"writers":     movie.Writers,
+		"directors":   movie.Directors,
+		"producers":   movie.Producers,
+		"editors":     movie.Editors,
+		"cameras":     movie.Cameras,
+		"genres":      movie.Genres,
+		"actors":      movie.Actors,
+		"countries":   movie.Countries,
 		"images":      movie.Images,
 		"poster":      movie.Poster,
 		"created":     time.Now(),

@@ -1,6 +1,5 @@
 <script>
     import Button from "$lib/components/Button.svelte";
-    import {json} from "@sveltejs/kit";
 
     let message = "";
     let name = '';
@@ -34,29 +33,36 @@
 
         switch (type) {
             case "d":
-                directors.push(person)
-                directors = directors;
+                directors = [...directors, person];
+                director = "";
                 break;
             case "w":
                 writers = [...writers, person];
+                writer = "";
                 break;
             case "p":
                 producers = [...producers, person];
+                producer = "";
                 break;
             case "e":
                 editors = [...editors, person];
+                editor = "";
                 break;
             case "c":
                 cameras = [...cameras, person];
+                camera = "";
                 break;
             case "g":
                 genres = [...genres, person];
+                genre = "";
                 break;
             case "a":
                 actors = [...actors, person];
+                actor = "";
                 break;
             case "country":
                 countries = [...countries, person];
+                country = "";
                 break;
             default:
                 console.error("Error: Invalid type");
@@ -115,56 +121,29 @@
         previews = previews.filter((_, i) => i !== index);
     }
 
-    async function sendData(event) {
-        event.preventDefault();
-
-        const formData = new FormData();
-
-        if (images) {
-            for (let i = 0; i < images.length; i++) {
-                formData.append('images', images[i]);
-            }
-        }
-
-        formData.append("directors", JSON.stringify(directors));
-
-
-        // Debug logs to check the form data before sending it
-        console.log("Directors:", directors);
-
-
-        try {
-            const response = await fetch("http://localhost:8000/add-movie", {
-                method: "POST",
-                body: formData,
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                console.log("Movie added successfully:", (message = data.message));
-            } else {
-                console.error("Error adding movie:", (message = data.message));
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
 
    async function newData() {
 
         const formData = new FormData();
         formData.append('name', name);
         formData.append('year', year);
-        directors.forEach(director => {
+        directors.forEach(director => {formData.append('directors', director);})
+        writers.forEach(    writer  => {formData.append('writers', writer)});
+        producers.forEach(  producer => {formData.append('producers', producer)});
+        editors.forEach(    editor  => {formData.append('editors', editor)});
+        cameras.forEach(    camera  => {formData.append('cameras', camera)});
+        genres.forEach(     genre   => {formData.append('genres', genre)});
+        actors.forEach(     actor   => {formData.append('actors', actor)});
+        countries.forEach(  country => {formData.append('countries', country)});
 
-            formData.append('directors', director);
-        })
         formData.append('releaseDate', releaseDate);
         formData.append('duration', duration);
         formData.append('description', description);
-        formData.append('poster', poster);
+
+
+       if (poster && poster.length > 0) {
+           formData.append('poster', poster[0], poster[0].name);
+       }
 
        if (images) {
            for (let i = 0; i < images.length; i++) {
@@ -225,6 +204,86 @@
         {/if}
         <Button padding="p-2" name="Push" on:click={() => pushItem(director, "d")} />
 
+        <label class="text-cinema-text" for="writers">Writers</label>
+        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="writers" id="writers">
+
+        {#if writers.length > 0}
+            <div class="flex flex-wrap">
+                {#each writers as writer, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{writer}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "w")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(writer, "w")} />
+
+        <label class="text-cinema-text" for="producers">Producers</label>
+        <input bind:value={producer} class="p-1 rounded-lg mb-2" type="text" name="producers" id="producers">
+
+        {#if producers.length > 0}
+            <div class="flex flex-wrap">
+                {#each producers as producer, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{producer}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "p")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(producer, "p")} />
+
+        <label class="text-cinema-text" for="editors">Editors</label>
+        <input bind:value={editor} class="p-1 rounded-lg mb-2" type="text" name="editors" id="editors">
+
+        {#if editors.length > 0}
+            <div class="flex flex-wrap">
+                {#each editors as editor, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{editor}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "e")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(editor, "e")} />
+
+        <label class="text-cinema-text" for="cameras">Cameras</label>
+        <input bind:value={camera} class="p-1 rounded-lg mb-2" type="text" name="cameras" id="cameras">
+
+        {#if cameras.length > 0}
+            <div class="flex flex-wrap">
+                {#each cameras as camera, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{camera}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "c")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(camera, "c")} />
+
+        <label class="text-cinema-text" for="genres">Genres</label>
+        <input bind:value={genre} class="p-1 rounded-lg mb-2" type="text" name="genres" id="genres">
+
+        {#if genres.length > 0}
+            <div class="flex flex-wrap">
+                {#each genres as genre, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{genre}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "g")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(genre, "g")} />
+
     </fieldset>
 
     <fieldset class="flex flex-col p-2">
@@ -235,12 +294,46 @@
     <fieldset class="flex flex-col p-2">
         <legend class="flex font-bold text-cinema-text text-xl">Other</legend>
 
+        <label class="text-cinema-text" for="country">Countries</label>
+        <input bind:value={country} class="p-1 rounded-lg mb-2" type="text" name="countries" id="country">
+
+        {#if countries.length > 0}
+            <div class="flex flex-wrap">
+                {#each countries as country, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{country}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "country")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(country, "country")} />
+
         <label class="text-cinema-text" for="duration">Duration(min)</label>
         <input bind:value={duration} class="p-1 rounded-lg mb-2" type="text" name="duration" id="duration">
 
         <label class="text-cinema-text" for="description">Description</label>
         <textarea bind:value={description} class="p-1 rounded-lg mb-2" name="description" id="description"
-                  cols="10" rows="5"></textarea>
+                  cols="10" rows="5">
+        </textarea>
+
+        <label class="text-cinema-text" for="actors">Actors</label>
+        <input bind:value={actor} class="p-1 rounded-lg mb-2" type="text" name="actors" id="actors">
+
+        {#if actors.length > 0}
+            <div class="flex flex-wrap">
+                {#each actors as actor, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{actor}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "a")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(actor, "a")} />
+
 
     </fieldset>
 

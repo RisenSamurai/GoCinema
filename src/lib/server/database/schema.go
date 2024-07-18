@@ -9,6 +9,13 @@ type Movie struct {
 	Name        string    `json:"name"`
 	Year        string    `json:"year"`
 	Directors   []string  `json:"directors"`
+	Writers     []string  `json:"writers"`
+	Producers   []string  `json:"producers"`
+	Editors     []string  `json:"editors"`
+	Cameras     []string  `json:"cameras"`
+	Genres      []string  `json:"genres"`
+	Actors      []string  `json:"actors"`
+	Countries   []string  `json:"countries"`
 	ReleaseDate time.Time `json:"release_date"`
 	Duration    float64   `json:"duration"`
 	Description string    `json:"description"`
