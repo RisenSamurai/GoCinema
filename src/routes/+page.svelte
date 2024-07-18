@@ -1,6 +1,7 @@
 <script>
 
 import HomeMoviesSlider from "$lib/components/HomeMoviesSlider.svelte";
+export let data;
 </script>
 
 <svelte:head>
@@ -10,7 +11,7 @@ import HomeMoviesSlider from "$lib/components/HomeMoviesSlider.svelte";
 
 
 <main class="flex flex-col px-2 bg-cinema-primary">
-    <HomeMoviesSlider header="New Movies" type="movies"/>
+    <HomeMoviesSlider header="New Movies" type="movies" items={data.items}/>
     <HomeMoviesSlider header="Hot News" type="news" />
     <HomeMoviesSlider header="TV Shows" type="series"/>
 </main>

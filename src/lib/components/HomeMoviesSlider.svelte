@@ -6,26 +6,10 @@
     export let header = "Header";
     export let background = "bg-cinema-secondary";
     export let type = "movies";
+    export let items;
 
-    let movies = [
-        {
-            title: "The Fall Guy",
-            poster: "/images/posters/The Fall Guy/aBkqu7EddWK7qmY4grL4I6edx2h.webp"
-        },
-        {
-            title: "The Fall Guy",
-            poster: "/images/posters/The Fall Guy/aBkqu7EddWK7qmY4grL4I6edx2h.webp"
-        },
-        {
-            title: "The Fall Guy",
-            poster: "/images/posters/The Fall Guy/aBkqu7EddWK7qmY4grL4I6edx2h.webp"
-        },
-        {
-            title: "The Fall Guy",
-            poster: "/images/posters/The Fall Guy/aBkqu7EddWK7qmY4grL4I6edx2h.webp"
-        },
 
-    ];
+
 
     let series = [
         {
@@ -50,6 +34,8 @@
         }
     ]
 
+    console.log(items)
+
 </script>
 
 
@@ -60,8 +46,8 @@
     <div class="flex {background} w-full h-80 mt-4 overflow-x-auto rounded-lg whitespace-nowrap scroll-smooth transition delay-150 ease-in-out">
 
         {#if type == "movies"}
-                {#each movies as movie}
-                    <MovieCard  title="{movie.title}" poster="{movie.poster}"/>
+                {#each items as item}
+                    <MovieCard  title="{item.name}" poster="{item.poster}" link={"/movie/"+item.id}/>
                 {/each}
         {:else if type == "series"}
             {#each series as serial}

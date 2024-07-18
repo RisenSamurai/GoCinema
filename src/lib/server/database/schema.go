@@ -6,25 +6,26 @@ import (
 )
 
 type Movie struct {
-	Name        string    `json:"name"`
-	Year        string    `json:"year"`
-	Directors   []string  `json:"directors"`
-	Writers     []string  `json:"writers"`
-	Producers   []string  `json:"producers"`
-	Editors     []string  `json:"editors"`
-	Cameras     []string  `json:"cameras"`
-	Genres      []string  `json:"genres"`
-	Actors      []string  `json:"actors"`
-	Countries   []string  `json:"countries"`
-	Keywords    []string  `json:"keywords"`
-	Budget      float64   `json:"budget"`
-	Language    string    `json:"language"`
-	ReleaseDate time.Time `json:"release_date"`
-	Duration    float64   `json:"duration"`
-	Description string    `json:"description"`
-	Poster      string    `json:"poster"`
-	Images      []string  `json:"images"`
-	Created     time.Time `json:"created"`
+	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Name        string             `bson:"name" json:"name"`
+	Year        string             `bson:"year" json:"year"`
+	Directors   []string           `bson:"directors" json:"directors"`
+	Writers     []string           `bson:"writers" json:"writers"`
+	Producers   []string           `bson:"producers" json:"producers"`
+	Editors     []string           `bson:"editors" json:"editors"`
+	Cameras     []string           `bson:"cameras" json:"cameras"`
+	Genres      []string           `bson:"genres" json:"genres"`
+	Actors      []string           `bson:"actors" json:"actors"`
+	Countries   []string           `bson:"countries" json:"countries"`
+	Keywords    []string           `bson:"keywords" json:"keywords"`
+	Budget      float64            `bson:"budget" json:"budget"`
+	Language    string             `bson:"language" json:"language"`
+	ReleaseDate time.Time          `bson:"release_date" json:"release_date"`
+	Duration    float64            `bson:"duration" json:"duration"`
+	Description string             `bson:"description" json:"description"`
+	Poster      string             `bson:"poster" json:"poster"`
+	Images      []string           `bson:"images" json:"images"`
+	Created     time.Time          `bson:"created" json:"created"`
 }
 
 type Series struct {

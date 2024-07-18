@@ -3,7 +3,6 @@ package handlers
 import (
 	"GoCinema/src/lib/server"
 	"GoCinema/src/lib/server/database"
-	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
@@ -17,10 +16,6 @@ import (
 	age2 "github.com/theTardigrade/golang-age"
 	"go.mongodb.org/mongo-driver/mongo"
 )
-
-type MovieCollection interface {
-	InsertOne(ctx context.Context, movie interface{}) (*mongo.InsertOneResult, error)
-}
 
 type Handler struct {
 	Client *mongo.Client
