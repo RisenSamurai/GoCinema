@@ -24,6 +24,12 @@ func (h *Handler) GetItems(c *gin.Context) {
 	})
 }
 
+func (h *Handler) GetMovie(c *gin.Context) {
+
+	c.JSON(http.StatusOK, gin.H{})
+
+}
+
 func (h *Handler) fetchItemsFromMongo(ctx context.Context) ([]database.Movie, error) {
 	collection := h.Client.Database("GoCinema").Collection("Movies")
 

@@ -5,7 +5,7 @@
 
     export let header = "Header";
     export let background = "bg-cinema-secondary";
-    export let type = "movies";
+    export let type = "movie";
     export let items;
 
 
@@ -45,11 +45,11 @@
 
     <div class="flex {background} w-full h-80 mt-4 overflow-x-auto rounded-lg whitespace-nowrap scroll-smooth transition delay-150 ease-in-out">
 
-        {#if type == "movies"}
+        {#if type === "movie"}
                 {#each items as item}
                     <MovieCard  title="{item.name}" poster="{item.poster}" link={"/movie/"+item.id}/>
                 {/each}
-        {:else if type == "series"}
+        {:else if type === "series"}
             {#each series as serial}
                 <MovieCard  title="{serial.title}" poster="{serial.poster}"/>
             {/each}

@@ -34,7 +34,7 @@ func TestAddMovie(t *testing.T) {
 
 	h := &Handler{}
 	router := setupRouter()
-	router.POST("/movies", h.AddMovie)
+	router.POST("/movie", h.AddMovie)
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)

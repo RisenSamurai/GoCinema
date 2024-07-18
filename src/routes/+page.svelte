@@ -11,7 +11,7 @@ export let data;
 
 
 <main class="flex flex-col px-2 bg-cinema-primary">
-    <HomeMoviesSlider header="New Movies" type="movies" items={data.items}/>
+    <HomeMoviesSlider header="New Movies" type="movie" items={data.items}/>
     <HomeMoviesSlider header="Hot News" type="news" />
     <HomeMoviesSlider header="TV Shows" type="series"/>
 </main>

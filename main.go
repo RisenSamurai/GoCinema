@@ -34,6 +34,7 @@ func main() {
 	r.POST("/add-actor", handler.AddActor)
 	r.POST("/add-movie", handler.AddMovie)
 	r.GET("/fetch-main-page-items", handler.GetItems)
+	r.GET("/fetch-movie", handler.GetMovie)
 
 	r.Static("images/", "./static/")
 	r.Run(serverAddress)
