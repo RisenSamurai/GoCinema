@@ -10,11 +10,11 @@
 
 <header class="flex justify-between px-2 items-center w-screen min-h-14 rounded-b-sm
  border-b border-b-cinema-highlight  bg-cinema-secondary text-white font-bold sticky top-0">
-    <div class="flex justify-around bg-cinema-secondary rounded-lg">
+    <a href="/" class="flex justify-around bg-cinema-secondary rounded-lg">
         <span class="text-2xl text-cinema-goColor">G</span>
         <span class="text-2xl text-cinema-highlight -rotate-45">C</span>
 
-    </div>
+    </a>
 
     <nav>
 

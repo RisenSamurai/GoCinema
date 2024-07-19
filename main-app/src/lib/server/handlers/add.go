@@ -199,7 +199,7 @@ func (h *Handler) AddMovie(c *gin.Context) {
 	movie.Keywords = c.PostFormArray("keywords")
 	movie.Language = c.PostForm("language")
 
-	uploadDir := filepath.Join("static", "images", "movie", movie.Name)
+	uploadDir := filepath.Join("images", "movie", movie.Name)
 
 	err = server.DirExists(uploadDir)
 	if err != nil {
