@@ -7,7 +7,7 @@
 
 
 
-<div class="flex w-full h-80 mt-4 overflow-x-auto rounded-lg whitespace-nowrap scroll-smooth transition delay-150
+<div class="flex bg-cinema-secondary w-full h-40 mt-4 overflow-x-auto rounded-lg whitespace-nowrap scroll-smooth transition delay-150
  ease-in-out">
 
     {#each images as image}
