@@ -1,0 +1,15 @@
+
+{
+  "post_id": 1,
+  "title": "Introduction to MongoDB",
+  "content": "MongoDB is a database...",
+  "author": "Alice",
+  "comments": [
+    {
+      "comment_id": 12,
+      "user": "John",
+      "message": "I liked the course!",
+      "date": "6/13/2024"
+    }
+  ]
+}
