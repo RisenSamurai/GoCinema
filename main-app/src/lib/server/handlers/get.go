@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
@@ -26,8 +27,38 @@ func (h *Handler) GetItems(c *gin.Context) {
 
 func (h *Handler) GetMovie(c *gin.Context) {
 
-	c.JSON(http.StatusOK, gin.H{})
+	id := c.Param("id")
 
+	movie, err := h.fetchItemFromMongo(c.Request.Context(), id)
+	if err != nil {
+		log.Println("Error fetching movie from Mongo: ", err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"movie": movie,
+	})
+
+}
+
+func (h *Handler) fetchItemFromMongo(ctx context.Context, id string) (database.Movie, error) {
+
+	var item database.Movie
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Println("Error converting id to ObjectID: ", err)
+		return item, err
+	}
+
+	collection := h.Client.Database("GoCinema").Collection("Movies")
+
+	err = collection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&item)
+	if err != nil {
+		log.Println("Error fetching movie from Mongo: ", err)
+		return item, err
+	}
+
+	return item, nil
 }
 
 func (h *Handler) fetchItemsFromMongo(ctx context.Context) ([]database.Movie, error) {
