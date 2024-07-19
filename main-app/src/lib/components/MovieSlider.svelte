@@ -12,8 +12,8 @@
 
     {#each images as image}
 
-        <div class="flex">
-            <img src="../{image}" alt="">
+        <div class="flex flex-col shrink-0 w-1/2 rounded-lg p-2">
+            <img class="object-cover rounded-lg w-full h-auto" src="../{image}" alt="">
         </div>
 
         {/each}
