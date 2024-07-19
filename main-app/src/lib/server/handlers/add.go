@@ -320,6 +320,7 @@ func (h *Handler) pushMovie(c *gin.Context, movie database.Movie) (string, error
 		"budget":      movie.Budget,
 		"language":    movie.Language,
 		"countries":   movie.Countries,
+		"keywords":    movie.Keywords,
 		"images":      movie.Images,
 		"poster":      movie.Poster,
 		"created":     time.Now(),
