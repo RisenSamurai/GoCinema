@@ -4,6 +4,6 @@
 </script>
 
 
-<div class="flex flex-col bg-cinema-secondary w-full items-center">
+<div class="flex flex-col bg-cinema-highlight rounded-lg w-full items-center">
     <h2 class="text-cinema-text font-bold text-xl p-4">{title} ({extra})</h2>
 </div>
