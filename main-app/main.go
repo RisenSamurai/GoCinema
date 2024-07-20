@@ -36,6 +36,17 @@ func main() {
 	r.GET("/fetch-main-page-items", handler.GetItems)
 	r.GET("/fetch-movie/:id", handler.GetMovie)
 
+	r.GET("/hello", func(c *gin.Context) {
+
+		type Message struct {
+			Message string `json:"message"`
+		}
+
+		message := Message{Message: "Hello World!"}
+
+		c.JSON(200, message)
+	})
+
 	r.Static("images/", "./static/")
 	r.Run(serverAddress)
 }
