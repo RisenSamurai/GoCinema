@@ -25,6 +25,10 @@ func (h *Handler) GetItems(c *gin.Context) {
 	})
 }
 
+func HandleMovieRequest(c *gin.Context) {
+
+}
+
 func (h *Handler) GetMovie(c *gin.Context) {
 
 	id := c.Param("id")
