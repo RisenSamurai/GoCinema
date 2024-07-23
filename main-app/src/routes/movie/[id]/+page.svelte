@@ -1,10 +1,16 @@
 <script>
     import Headers from "$lib/components/Headers.svelte";
     import MovieSlider from "$lib/components/MovieSlider.svelte";
+    import {onMount} from "svelte";
 
     export let data;
     const { movie } = data;
     console.log("Movie page!", movie);
+
+
+    onMount(async () => {
+        const fetchRating = await fetch("http://localhost:8000/")
+    })
 
 
 </script>

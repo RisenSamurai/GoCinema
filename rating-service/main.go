@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"rating_microservice/handlers"
 )
 
 func main() {
@@ -36,6 +37,8 @@ func main() {
 			"message": message,
 		})
 	})
+
+	r.GET("/get-movie-rating/:id", handlers.FetchRating)
 
 	err := r.Run("localhost:8081")
 	if err != nil {

@@ -35,7 +35,6 @@ require (
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/ryanbradynd05/go-tmdb v0.0.0-20230108222638-2a68dc6ff40c // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/theTardigrade/golang-leapYear v1.0.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect

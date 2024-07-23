@@ -25,6 +25,7 @@ type Movie struct {
 	Description string             `bson:"description" json:"description"`
 	Poster      string             `bson:"poster" json:"poster"`
 	Images      []string           `bson:"images" json:"images"`
+	TmdbId      string             `bson:"tmdbId" json:"tmdbId"`
 	Created     time.Time          `bson:"created" json:"created"`
 }
 

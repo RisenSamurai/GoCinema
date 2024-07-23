@@ -18,6 +18,7 @@
     let keyword = "";
     let budget = "";
     let language = "";
+    let tmdbId = "";
 
     let directors = [];
     let writers = [];
@@ -154,6 +155,7 @@
         formData.append('releaseDate', releaseDate);
         formData.append('duration', duration);
         formData.append('description', description);
+        formData.append('tmdbId', tmdbId);
 
 
        if (poster && poster.length > 0) {
@@ -333,6 +335,9 @@
 
         <label class="text-cinema-text" for="language">Language</label>
         <input bind:value={language} class="p-1 rounded-lg mb-2" type="text" name="language" id="language">
+
+        <label class="text-cinema-text" for="tmdbId">TMDB ID</label>
+        <input bind:value={tmdbId} class="p-1 rounded-lg mb-2" type="text" name="tmdbId" id="tmdbId">
 
         <label class="text-cinema-text" for="description">Description</label>
         <textarea bind:value={description} class="p-1 rounded-lg mb-2" name="description" id="description"
