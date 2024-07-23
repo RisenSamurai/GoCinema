@@ -23,7 +23,7 @@ func FetchRating(c *gin.Context) {
 	req, _ := http.NewRequest("GET", url, nil)
 
 	req.Header.Add("accept", "application/json")
-	req.Header.Add("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiMGI3N2NhNzJlYzc5MzYzMGE2MTY2NTA0ZWQ3OWQ0OSIsIm5iZiI6MTcyMTU3MDE1Mi4yMDgzMjgsInN1YiI6IjY2OWI4MWZiY2EwMWNjY2VkNjY4MjYxYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.rMywsmtSLAmQ-q_n5Wk7vWxPK216Aozlw6P1v8565SA")
+	req.Header.Add("Authorization", "")
 
 	res, _ := http.DefaultClient.Do(req)
 
