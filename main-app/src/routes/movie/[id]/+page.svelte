@@ -4,7 +4,9 @@
 
     export let data;
     const { movie } = data;
+    const { ratings } = data;
     console.log("Movie page!", movie);
+    console.log("Ratings from TMDB!", ratings);
 
 
 
@@ -27,7 +29,7 @@
     <!--Ratings section -->
 
     <div class="flex bg-cinema-gold rounded-lg p-4 mt-4">
-        <span>Rating 1</span>
+        <span>{ratings.vote_average}</span>
         <span>Rating 2</span>
     </div>
 

@@ -3,6 +3,7 @@ package handlers
 import (
 	"GoCinema/src/lib/server/database"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,6 +12,14 @@ import (
 	"log"
 	"net/http"
 )
+
+func decodeRatings(encodedRatings string) (string, error) {
+	decodedBytes, err := base64.StdEncoding.DecodeString(encodedRatings)
+	if err != nil {
+		return "", err
+	}
+	return string(decodedBytes), nil
+}
 
 func (h *Handler) GetItems(c *gin.Context) {
 	items, err := h.fetchItemsFromMongo(c.Request.Context())
@@ -31,15 +40,31 @@ func HandleMovieRequest(c *gin.Context) {
 
 func (h *Handler) GetMovie(c *gin.Context) {
 
+	log.Println("Inside GetMovie")
+
 	id := c.Param("id")
 
 	movie, err := h.fetchItemFromMongo(c.Request.Context(), id)
+	encodedRatings, err := FetchRatingApi(movie.TmdbId)
+	if err != nil {
+		log.Println("Error fetching movie from Mongo: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching items from Mongo"})
+
+	}
+
+	decodedRatings, err := decodeRatings(encodedRatings)
+	if err != nil {
+		log.Println("Error decoding movie from Mongo: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error decoding movie from TMDB"})
+	}
+
 	if err != nil {
 		log.Println("Error fetching movie from Mongo: ", err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"movie": movie,
+		"movie":   movie,
+		"ratings": decodedRatings,
 	})
 
 }

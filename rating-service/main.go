@@ -6,7 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"rating-service/queries"
+	"rating_microservice/queries"
 )
 
 func main() {

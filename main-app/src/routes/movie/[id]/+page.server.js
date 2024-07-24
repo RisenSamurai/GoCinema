@@ -1,4 +1,3 @@
-
 export async function load ({ params, fetch}) {
 
     const { id } = params;
@@ -7,9 +6,10 @@ export async function load ({ params, fetch}) {
 
 
     if (response.ok) {
-        const { movie } = await response.json();
+        const { movie, ratings } = await response.json();
         return {
             movie: movie,
+            ratings: JSON.parse(ratings),
         }
     } else {
         throw new Error(`Could not find movie with id ${id}`);

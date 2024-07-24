@@ -3,9 +3,11 @@ package queries
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 type TMDBMovie struct {
@@ -22,8 +24,15 @@ func FetchRating(c *gin.Context) {
 
 	req, _ := http.NewRequest("GET", url, nil)
 
+	err := godotenv.Load("config/.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	apiKey := os.Getenv("TMDB_KEY")
+
 	req.Header.Add("accept", "application/json")
-	req.Header.Add("Authorization", "")
+	req.Header.Add("Authorization", apiKey)
 
 	res, _ := http.DefaultClient.Do(req)
 
@@ -31,5 +40,9 @@ func FetchRating(c *gin.Context) {
 	body, _ := io.ReadAll(res.Body)
 
 	fmt.Println(string(body))
+
+	c.JSON(200, gin.H{
+		"body": body,
+	})
 
 }
