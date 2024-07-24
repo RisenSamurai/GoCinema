@@ -30,7 +30,7 @@
 
     <div class="flex bg-cinema-gold rounded-lg p-4 mt-4">
         <span>{ratings.vote_average}</span>
-        <span>Rating 2</span>
+        <span>Vote count: {ratings.vote_count}</span>
     </div>
 
 
@@ -52,7 +52,7 @@
             </div>
             <div class="flex justify-between w-full mb-1">
                 <span class="text-cinema-text">Release Date: </span>
-                <span class="text-cinema-text">{movie.release_date}</span>
+                <span class="text-cinema-text">{ratings.release_date}</span>
             </div>
 
         </div>
