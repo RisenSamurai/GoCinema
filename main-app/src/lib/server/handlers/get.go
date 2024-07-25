@@ -6,12 +6,22 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
 )
+
+var redisClient *redis.Client
+
+func init() {
+	// Initialize Redis client
+	redisClient = redis.NewClient(&redis.Options{
+		Addr: "localhost:6379", // Redis server address
+	})
+}
 
 func decodeRatings(encodedRatings string) (string, error) {
 	decodedBytes, err := base64.StdEncoding.DecodeString(encodedRatings)
@@ -43,6 +53,12 @@ func (h *Handler) GetMovie(c *gin.Context) {
 	log.Println("Inside GetMovie")
 
 	id := c.Param("id")
+
+	ctx := c.Request.Context()
+	cachedData, err := redisClient.Get(ctx, id).Bytes()
+	if err == nil {
+		c.Data(200, "application/json; charset=utf-8", cachedData)
+	}
 
 	movie, err := h.fetchItemFromMongo(c.Request.Context(), id)
 	encodedRatings, err := FetchRatingApi(movie.TmdbId)
