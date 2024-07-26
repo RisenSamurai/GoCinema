@@ -49,7 +49,7 @@ func FetchRating(c *gin.Context) {
 		log.Fatal("Error loading .env file")
 	}
 
-	apiKey := os.Getenv("TMDB_KEY")
+	apiKey := os.Getenv("TMDB_API")
 
 	req.Header.Add("accept", "application/json")
 	req.Header.Add("Authorization", apiKey)
@@ -60,6 +60,12 @@ func FetchRating(c *gin.Context) {
 	body, _ := io.ReadAll(res.Body)
 
 	fmt.Println(string(body))
+
+	err = redisClient.Set(ctx, "movie:"+id, body, 0).Err()
+	if err != nil {
+		log.Printf("Redis error: %v", err)
+
+	}
 
 	c.JSON(200, gin.H{
 		"body": body,

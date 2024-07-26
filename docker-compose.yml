@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "8000:8000"
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  microservice1:
+    build:
+      context: ./rating-service/
+      dockerfile: Dockerfile
+    volumes:
+      - /rating-service/
+    ports:
+      - "8001:8001"
