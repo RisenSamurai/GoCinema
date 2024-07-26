@@ -5,25 +5,32 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - .:/app
-      - /app/node_modules
     ports:
       - "8000:8000"
       - "5173:5173"
     environment:
       - NODE_ENV=development
+      - GIN_MODE=debug
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - rating-service
+
+  rating-service:
+    build:
+      context: .
+      dockerfile: rating-service/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - GIN_MODE=debug
+    volumes:
+      - ./rating-service:/app
+
+  # Add other services like MongoDB and Redis if needed
 
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
-
-  microservice1:
-    build:
-      context: ./rating-service/
-      dockerfile: Dockerfile
-    volumes:
-      - /rating-service/
-    ports:
-      - "8001:8001"
