@@ -1,20 +1,15 @@
-FROM ubuntu:latest
-LABEL authors="Samurai"
-
 FROM golang:1.22-alpine
 
-# Install Node.js and npm
-RUN apk add --no-cache nodejs npm
+WORKDIR /app
 
-# Set working directory
-WORKDIR /app/rating-service
-
-# Install Go dependencies
-COPY go.mod go.sum ./
+COPY rating-service/go.mod rating-service/go.sum ./
 
 RUN go mod download
 
-RUN go install github.com/air-verse/air@latest
+COPY rating-service .
 
+RUN go build -o main .
 
-CMD air & --host
+EXPOSE 8081
+
+CMD ["./main"]
