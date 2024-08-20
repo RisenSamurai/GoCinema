@@ -34,7 +34,7 @@
         }
     ]
 
-    console.log(items)
+    console.log("Movies list", items)
 
 </script>
 

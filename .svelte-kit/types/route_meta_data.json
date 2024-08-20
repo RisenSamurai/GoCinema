@@ -1,0 +1,19 @@
+{
+	"/": [
+		"src/routes/+page.server.js"
+	],
+	"/about": [],
+	"/actor/[id]": [
+		"src/routes/actor/[id]/+page.js"
+	],
+	"/admin/panel": [],
+	"/admin/panel/add": [
+		"src/routes/admin/panel/add/+server.js"
+	],
+	"/admin/panel/delete": [],
+	"/admin/panel/edit": [],
+	"/movie/[id]": [
+		"src/routes/movie/[id]/+page.server.js"
+	],
+	"/profile": []
+}

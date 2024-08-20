@@ -2,6 +2,7 @@
 
 import HomeMoviesSlider from "$lib/components/HomeMoviesSlider.svelte";
 export let data;
+console.log("items", data.items)
 </script>
 
 <svelte:head>

@@ -9,7 +9,7 @@ export async function load ({ params, fetch}) {
         const { movie, ratings } = await response.json();
         return {
             movie: movie,
-            ratings: JSON.parse(ratings),
+            ratings: ratings,
         }
     } else {
         throw new Error(`Could not find movie with id ${id}`);
