@@ -1,0 +1,671 @@
+package handlers
+
+import (
+	"GoCinema/src/lib/server"
+	"GoCinema/src/lib/server/database"
+	"context"
+	"go.mongodb.org/mongo-driver/bson"
+	"log"
+	"os"
+	"path/filepath"
+	"strconv"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	age2 "github.com/theTardigrade/golang-age"
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+type MovieCollection interface {
+	InsertOne(ctx context.Context, movie interface{}) (*mongo.InsertOneResult, error)
+}
+
+type Handler struct {
+	Client *mongo.Client
+}
+
+func NewHandler(client *mongo.Client) *Handler {
+	return &Handler{Client: client}
+}
+
+func (h *Handler) AddActor(c *gin.Context) {
+	log.Println("Got into AddActor!")
+
+	var actor database.Actor
+
+	const maxFileSize = 10 << 20
+
+	err := c.Request.ParseMultipartForm(maxFileSize)
+	if err != nil {
+		log.Println("Error parsing multipart form")
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	form, _ := c.MultipartForm()
+	files := form.File["images"]
+
+	log.Println(files)
+
+	actor.Name = c.PostForm("name")
+	actor.Surname = c.PostForm("lastName")
+
+	birthdayStr := c.PostForm("birthday")
+
+	log.Println("Birthday: ", birthdayStr)
+	log.Println("Name:", actor.Name)
+
+	birthday, err := time.Parse("2006-01-02", birthdayStr)
+	if err != nil {
+		log.Println("Error parsing birthday")
+		c.JSON(400, gin.H{
+			"message": "Invalid date format" + err.Error(),
+		})
+
+		return
+	}
+
+	age := age2.CalculateToNow(birthday)
+	actor.Age = age
+	actor.Birthday = birthday
+	actor.Gender = c.PostForm("gender")
+	actor.Birthplace = c.PostForm("pob")
+	actor.Bio = c.PostForm("biog")
+	actor.Created = time.Now()
+
+	dir := filepath.Dir("./static/images/actors/")
+	uploadDir := filepath.Join(dir, actor.Name+actor.Surname+"/")
+
+	err = os.Mkdir(uploadDir, 0755)
+	if err != nil {
+		log.Println("Error creating upload dir", err)
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	for _, file := range files {
+		filePath := filepath.Join(uploadDir, file.Filename)
+
+		if err := c.SaveUploadedFile(file, filePath); err != nil {
+			log.Println("Error saving uploaded file", err)
+			c.JSON(500, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+		//actor.Images = append(actor.Images, filePath)
+	}
+
+	message, err := h.pushActor(c, actor)
+	if err != nil {
+		log.Println("Error pushing actor")
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": message,
+	})
+
+}
+
+func (h *Handler) AddMovie(c *gin.Context) {
+
+	var movie database.Movie
+
+	form, err := c.MultipartForm()
+	c.Request.ParseMultipartForm()
+
+	releaseDateStr := c.PostForm("releaseDate")
+	durationStr := c.PostForm("duration")
+
+	duration, err := strconv.ParseFloat(durationStr, 64)
+	if err != nil {
+		log.Println("Error parsing duration")
+		c.JSON(400, gin.H{
+			"message": "Invalid duration format" + err.Error(),
+		})
+	}
+
+	releaseDate, err := time.Parse("2006-01-02", releaseDateStr)
+	if err != nil {
+		log.Println("Error parsing birthday")
+		c.JSON(400, gin.H{
+			"message": "Invalid date format:" + err.Error(),
+		})
+
+		return
+	}
+
+	movie.Name = c.PostForm("movie-name")
+	movie.Year = c.PostForm("year")
+	log.Println("Directors", c.PostForm("directors"))
+	movie.Directors = server.ParseJSONArray(c.PostForm("directors"))
+	movie.ReleaseDate = releaseDate
+	movie.Duration = duration
+	movie.Description = c.PostForm("description")
+	movie.Created = time.Now()
+
+	dir := filepath.Dir("./static/images/movies/")
+	uploadDir := filepath.Join(dir, movie.Name+"/")
+
+	err = server.DirExists(uploadDir)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		log.Println("Error retrieving multipart form")
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	files := form.File["images"]
+	if len(files) == 0 {
+		c.JSON(400, gin.H{
+			"message": "No files uploaded",
+		})
+		return
+	}
+
+	allowedTypes := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/webp": true,
+	}
+
+	for _, fileHeader := range files {
+		if !allowedTypes[fileHeader.Header.Get("Content-Type")] {
+			c.JSON(400, gin.H{
+				"message": "File content type not allowed",
+			})
+			return
+		}
+
+		filePath := filepath.Join(uploadDir, fileHeader.Filename)
+		if err := c.SaveUploadedFile(fileHeader, filePath); err != nil {
+			log.Println("Error saving file:", err)
+			c.JSON(500, gin.H{
+				"message": "Failed to save file",
+			})
+			return
+		}
+
+		movie.Images = append(movie.Images, filePath)
+	}
+
+	file, err := c.FormFile("poster")
+	if err != nil {
+		log.Println("Error retrieving poster")
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+	}
+	if len(files) == 0 {
+		c.JSON(400, gin.H{
+			"message": "No files uploaded",
+		})
+		return
+	}
+
+	posterUploadDir := filepath.Join(".static/images/posters/", movie.Name)
+	posterFilePath := filepath.Join(posterUploadDir, file.Filename)
+	err = server.DirExists(posterFilePath)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	movie.Poster = posterFilePath
+	if err := c.SaveUploadedFile(file, movie.Poster); err != nil {
+		log.Println("Error saving file:", err)
+	}
+
+	_, err = h.pushMovie(c, movie)
+	if err != nil {
+		log.Println("Error pushing movie")
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+	c.JSON(200, gin.H{
+		"message": "Movie added",
+	})
+
+}
+
+func (h *Handler) pushMovie(c *gin.Context, movie database.Movie) (string, error) {
+
+	collection := h.Client.Database("GoCinema").Collection("Movies")
+
+	bsonMovie := bson.M{
+		"name":      movie.Name,
+		"year":      movie.Year,
+		"directors": movie.Directors,
+		"producers": movie.Producers,
+		"editors":   movie.Editors,
+		"cameras":   movie.Cameras,
+		"genres":    movie.Genres,
+		"release":   movie.ReleaseDate,
+		"countries": movie.Countries,
+		"duration":  movie.Duration,
+		"actors":    movie.Actors,
+		"created":   movie.Created,
+		"poster":    movie.Poster,
+		"images":    movie.Images,
+	}
+
+	_, err := collection.InsertOne(c.Request.Context(), bsonMovie)
+	if err != nil {
+		log.Println("Error inserting movie", err)
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return "", err
+	}
+
+	return "Movie added", nil
+}
+
+func (h *Handler) pushActor(c *gin.Context, actor database.Actor) (string, error) {
+
+	collection := h.Client.Database("GoCinema").Collection("Actors")
+
+	log.Println("got into push Actor!")
+	_, err := collection.InsertOne(c.Request.Context(), actor)
+	if err != nil {
+		log.Println("Error pushing actor", err)
+		c.JSON(500, gin.H{
+
+			"message": err.Error(),
+		})
+	}
+
+	return "Actor added", nil
+
+}
+
+
+<script>
+    import Button from "$lib/components/Button.svelte";
+
+    let message = "";
+    let director = "";
+    let writer = "";
+    let producer = "";
+    let editor = "";
+    let camera = "";
+    let genre = "";
+    let country = "";
+    let actor = "";
+
+    let directors = [];
+    let writers = [];
+    let producers = [];
+    let editors = [];
+    let cameras = [];
+    let genres = [];
+    let countries = [];
+    let images = [];
+    let actors = [];
+    let previews = [];
+
+    function pushItem(person, type) {
+        event.preventDefault();
+
+        switch (type) {
+            case "d":
+                directors = [...directors, person];
+                break;
+            case "w":
+                writers = [...writers, person];
+                break;
+            case "p":
+                producers = [...producers, person];
+                break;
+            case "e":
+                editors = [...editors, person];
+                break;
+            case "c":
+                cameras = [...cameras, person];
+                break;
+            case "g":
+                genres = [...genres, person];
+                break;
+            case "a":
+                actors = [...actors, person];
+                break;
+            case "country":
+                countries = [...countries, person];
+                break;
+            default:
+                console.error("Error: Invalid type");
+                break;
+        }
+
+        // Convert the arrays to JSON strings for sending
+        const jsonString = {
+            directors: JSON.stringify(directors),
+            writers: JSON.stringify(writers),
+            producers: JSON.stringify(producers),
+            editors: JSON.stringify(editors),
+            cameras: JSON.stringify(cameras),
+            genres: JSON.stringify(genres),
+            countries: JSON.stringify(countries),
+            actors: JSON.stringify(actors),
+        };
+
+        console.log(jsonString);
+    }
+
+    function removeItem(index, type) {
+        event.preventDefault();
+
+        switch (type) {
+            case "d":
+                directors = directors.filter((_, i) => i !== index);
+                break;
+            case "w":
+                writers = writers.filter((_, i) => i !== index);
+                break;
+            case "p":
+                producers = producers.filter((_, i) => i !== index);
+                break;
+            case "e":
+                editors = editors.filter((_, i) => i !== index);
+                break;
+            case "c":
+                cameras = cameras.filter((_, i) => i !== index);
+                break;
+            case "g":
+                genres = genres.filter((_, i) => i !== index);
+                break;
+            case "a":
+                actors = actors.filter((_, i) => i !== index);
+                break;
+            case "country":
+                countries = countries.filter((_, i) => i !== index);
+                break;
+            default:
+                console.error("Error: Invalid type");
+                break;
+        }
+    }
+
+    function pushImages(event) {
+        const input = event.target;
+        if (input && input.files.length > 0) {
+            const newImages = Array.from(input.files);
+            const newPreviews = newImages.map(file => URL.createObjectURL(file));
+            images = [...images, ...newImages];
+            previews = [...previews, ...newPreviews];
+        }
+    }
+
+    function deleteImage(index) {
+        images = images.filter((_, i) => i !== index);
+        previews = previews.filter((_, i) => i !== index);
+    }
+
+    async function sendData(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        images.forEach(image => {
+            formData.append("images", image);
+        });
+
+        formData.append("directors", JSON.stringify(directors));
+        formData.append("writers", JSON.stringify(writers));
+        formData.append("producers", JSON.stringify(producers));
+        formData.append("editors", JSON.stringify(editors));
+        formData.append("cameras", JSON.stringify(cameras));
+        formData.append("genres", JSON.stringify(genres));
+        formData.append("countries", JSON.stringify(countries));
+        formData.append("actors", JSON.stringify(actors));
+
+        // Debug logs to check the form data before sending it
+        console.log("Directors:", directors);
+        console.log("Writers:", writers);
+        console.log("Producers:", producers);
+        console.log("Editors:", editors);
+        console.log("Cameras:", cameras);
+        console.log("Genres:", genres);
+        console.log("Countries:", countries);
+        console.log("Actors:", actors);
+
+        try {
+            const response = await fetch("http://localhost:8000/add-movie", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                console.log("Movie added successfully:", (message = data.message));
+            } else {
+                console.error("Error adding movie:", (message = data.message));
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+</script>
+
+<h2 class="text-2xl text-white">{#if message}{message}{/if}</h2>
+<form on:submit={sendData} class="flex flex-col bg-cinema-secondary w-full">
+    <fieldset class="flex flex-col p-2">
+        <legend class="flex font-bold text-cinema-text text-xl">Basic Info</legend>
+        <label class="text-cinema-text" for="movie-name">Movie Name</label>
+        <input class="p-1 rounded-lg mb-2" type="text" name="movie-name" id="movie-name">
+        <label class="text-cinema-text" for="year">Year</label>
+        <input class="p-1 rounded-lg mb-2" type="text" name="year" id="year">
+    </fieldset>
+
+    <fieldset class="flex flex-col p-2">
+        <legend class="flex font-bold text-cinema-text text-xl">Film Crew</legend>
+        <label class="text-cinema-text" for="director">Director</label>
+        <input bind:value={director} class="p-1 rounded-lg mb-2" type="text" name="director" id="director">
+
+        {#if directors.length > 0}
+            <div class="flex flex-wrap">
+                {#each directors as director, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{director}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "d")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(director, "d")} />
+
+        <label class="text-cinema-text" for="writers">Writers</label>
+        <input bind:value={writer} class="p-1 rounded-lg mb-2" type="text" name="writers" id="writers">
+
+        {#if writers.length > 0}
+            <div class="flex flex-wrap">
+                {#each writers as writer, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{writer}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "w")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(writer, "w")} />
+
+        <label class="text-cinema-text" for="producers">Producers</label>
+        <input bind:value={producer} class="p-1 rounded-lg mb-2" type="text" name="producers" id="producers">
+
+        {#if producers.length > 0}
+            <div class="flex flex-wrap">
+                {#each producers as producer, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{producer}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "p")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(producer, "p")} />
+
+        <label class="text-cinema-text" for="editors">Editors</label>
+        <input bind:value={editor} class="p-1 rounded-lg mb-2" type="text" name="editors" id="editors">
+
+        {#if editors.length > 0}
+            <div class="flex flex-wrap">
+                {#each editors as editor, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{editor}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "e")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(editor, "e")} />
+
+        <label class="text-cinema-text" for="cameras">Cameras</label>
+        <input bind:value={camera} class="p-1 rounded-lg mb-2" type="text" name="cameras" id="cameras">
+
+        {#if cameras.length > 0}
+            <div class="flex flex-wrap">
+                {#each cameras as camera, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{camera}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "c")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(camera, "c")} />
+
+        <label class="text-cinema-text" for="genres">Genres</label>
+        <input bind:value={genre} class="p-1 rounded-lg mb-2" type="text" name="genres" id="genres">
+
+        {#if genres.length > 0}
+            <div class="flex flex-wrap">
+                {#each genres as genre, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{genre}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "g")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(genre, "g")} />
+    </fieldset>
+
+    <fieldset class="flex flex-col p-2">
+        <legend class="flex font-bold text-cinema-text text-xl">Release date</legend>
+        <input type="date" name="releaseDate">
+    </fieldset>
+
+    <fieldset class="flex flex-col p-2">
+        <legend class="flex font-bold text-cinema-text text-xl">Other</legend>
+        <label class="text-cinema-text" for="country">Countries</label>
+        <input bind:value={country} class="p-1 rounded-lg mb-2" type="text" name="countries" id="country">
+
+        {#if countries.length > 0}
+            <div class="flex flex-wrap">
+                {#each countries as country, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{country}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "country")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(country, "country")} />
+
+        <label class="text-cinema-text" for="duration">Duration(min)</label>
+        <input class="p-1 rounded-lg mb-2" type="text" name="duration" id="duration">
+
+        <label class="text-cinema-text" for="description">Description</label>
+        <textarea class="p-1 rounded-lg mb-2" name="description" id="description" cols="10" rows="5"></textarea>
+
+        <label class="text-cinema-text" for="actors">Actors</label>
+        <input bind:value={actor} class="p-1 rounded-lg mb-2" type="text" name="actors" id="actors">
+
+        {#if actors.length > 0}
+            <div class="flex flex-wrap">
+                {#each actors as actor, index}
+                    <div class="flex justify-between items-center pl-2">
+                        <span class="text-cinema-text">{actor}</span>
+                        <button type="button" class="text-cinema-text font-bold text-xl ml-2"
+                                on:click={() => removeItem(index, "a")}>X</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+        <Button padding="p-2" name="Push" on:click={() => pushItem(actor, "a")} />
+    </fieldset>
+
+    <fieldset class="flex flex-col p-2">
+        <legend class="flex font-bold text-cinema-text text-xl">Images</legend>
+        <label class="text-cinema-text" for="poster">Poster</label>
+        <input type="file" name="poster" id="poster">
+
+        <label class="text-cinema-text" for="image">Images</label>
+        <input type="file" on:change={pushImages} multiple name="images" id="image">
+        {#if previews.length > 0}
+            <div class="flex w-full h-64 whitespace-nowrap overflow-x-auto">
+                {#each previews as preview, index}
+                    <div class="flex shrink-0 relative">
+                        <button type="button" class="text-cinema-text font-bold text-2xl absolute"
+                                on:click={() => deleteImage(index)}>X</button>
+                        <img class="object-cover rounded-lg w-full h-auto" src={preview} alt="Preview">
+                    </div>
+                {/each}
+            </div>
+        {/if}
+    </fieldset>
+
+    <input type="submit" value="Send" class="bg-cinema-highlight text-cinema-text">
+</form>
+
+type Movie struct {
+	Name        string    `json:"name"`
+	Year        string    `json:"year"`
+	Directors   []string  `json:"directors"`
+	Writers     []string  `json:"writers"`
+	Producers   []string  `json:"producers"`
+	Editors     []string  `json:"editors"`
+	Cameras     []string  `json:"cameras"`
+	Genres      []string  `json:"genres"`
+	ReleaseDate time.Time `json:"release_date"`
+	Countries   []string  `json:"countries"`
+	Duration    float64   `json:"duration"`
+	Description string    `json:"description"`
+	Poster      string    `json:"poster"`
+	Images      []string  `json:"images"`
+	Actors      []string  `json:"actors"`
+	Created     time.Time `json:"created"`
+}
+
