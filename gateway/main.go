@@ -66,11 +66,23 @@ func main() {
 		defer resp.Body.Close()
 
 	})
+
+	r.POST("/add-article", func(c *gin.Context) {
+		url := fmt.Sprintf("http://localhost:8082/add-article")
+		resp, err := http.Get(url)
+		if err != nil {
+			log.Println("Error connecting to the service!", err)
+		}
+		defer resp.Body.Close()
+	})
+
 	r.GET("/fetch-main-page-items", func(c *gin.Context) {
 		url := fmt.Sprintf("http://localhost:8082/fetch-main-page-items")
 		resp, err := http.Get(url)
 		if err != nil {
 			log.Println("Error connecting to the service!", err)
+			c.JSON(500, gin.H{"message": "Error connecting to the service"})
+			return
 		}
 		defer resp.Body.Close()
 
@@ -84,6 +96,7 @@ func main() {
 			"data": movies,
 		})
 	})
+
 	r.GET("/fetch-movie/:id", func(c *gin.Context) {
 		url := fmt.Sprintf("http://localhost:8082/fetch-movie/%v", c.Param("id"))
 		resp, err := http.Get(url)

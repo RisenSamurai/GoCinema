@@ -49,7 +49,7 @@ declare module '$env/static/private' {
 	export const DokanLibrary1_LibraryPath_x86: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const EFC_8712: string;
+	export const EFC_6812: string;
 	export const FIG_TERM: string;
 	export const GATEWAY_VM_OPTIONS: string;
 	export const GO111MODULE: string;
@@ -191,7 +191,7 @@ declare module '$env/dynamic/private' {
 		DokanLibrary1_LibraryPath_x86: string;
 		DriverData: string;
 		EDITOR: string;
-		EFC_8712: string;
+		EFC_6812: string;
 		FIG_TERM: string;
 		GATEWAY_VM_OPTIONS: string;
 		GO111MODULE: string;
