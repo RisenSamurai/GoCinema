@@ -5,6 +5,7 @@ import Headers from "$lib/components/Headers.svelte";
 import Button from "$lib/components/Button.svelte";
 import ActorForm from "$lib/components/ActorForm.svelte";
 import MovieForm from "$lib/components/MovieForm.svelte";
+import ArticleForm from "$lib/components/ArticleForm.svelte";
 
 
 let cardType= "type";
@@ -60,8 +61,9 @@ function toggleMenu(tumb, card) {
                     <Headers title="Add Series"/>
                 </div>
             {:else if cardType === "article"}
-                <div class="">
+                <div class=" flex flex-col w-full">
                     <Headers title="Add Article"/>
+                    <ArticleForm />
                 </div>
             {:else if cardType === "actor"}
                 <div class="flex w-full flex-col">

@@ -27,21 +27,67 @@ func AddArticle(c *gin.Context) {
 		return
 	}
 
-	form, _ := c.MultipartForm()
-	file := form.File["preview"]
+	file, err := c.FormFile("preview")
+	if err != nil {
+		fmt.Printf("Encountered error during getting file %s", err)
+		return
+	}
 
 	article.Author = "Tom Cruise"
 	article.Content = c.PostForm("content")
 	article.Title = c.PostForm("title")
 	article.Created = time.Now()
 
-	uploadDir := filepath.Join("static", "images", "articles", article.Title)
+	if file != nil {
 
-	err = os.MkdirAll(uploadDir, 0777)
-	if err != nil {
-		fmt.Printf("Encountered error during creating upload dir %s", err)
-		return
+		uploadDir := filepath.Join("static", "images", "articles", article.Title)
+
+		_, err := os.Stat(uploadDir)
+		if err != nil {
+			if os.IsNotExist(err) {
+				err = os.MkdirAll(uploadDir, 0755)
+				if err != nil {
+					fmt.Printf("Encountered error during creating dir %s", err)
+					return
+				}
+			}
+		}
+
+		allowedTypes := map[string]bool{
+			"image/jpeg": true,
+			"image/png":  true,
+			"image/webp": true,
+		}
+
+		if !allowedTypes[file.Header.Get("Content-Type")] {
+			fmt.Printf("Image type is not allowed")
+			return
+		}
+
+		ext := filepath.Ext(file.Filename)
+		uniqueFilename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+
+		filePath := filepath.Join(uploadDir, uniqueFilename)
+
+		err = c.SaveUploadedFile(file, filePath)
+		if err != nil {
+			fmt.Printf("Encountered error saving file %s", err)
+			return
+		}
+
 	}
+
+	_, err = pushToDatabase(c, article, "Articles")
+	{
+		if err != nil {
+			fmt.Printf("Encountered error during pushing to database: %s", err)
+		}
+	}
+
+	c.JSON(200, gin.H{
+		"message": "OK",
+	})
+
 }
 
 func AddActor(c *gin.Context) {
@@ -131,7 +177,7 @@ func AddActor(c *gin.Context) {
 		}
 	}
 
-	message, err := pushActor(c, actor)
+	message, err := pushToDatabase(c, actor, "Actors")
 	if err != nil {
 		log.Println("Error pushing actor")
 		c.JSON(500, gin.H{
@@ -305,7 +351,7 @@ func AddMovie(c *gin.Context) {
 		movie.Poster = filepath.Join("images", "posters", movie.Name, uniqueFilename)
 	}
 
-	_, err = pushMovie(c, movie)
+	_, err = pushToDatabase(c, movie, "Movies")
 	if err != nil {
 		log.Println("Error pushing movie")
 		c.JSON(500, gin.H{
@@ -362,25 +408,21 @@ func pushMovie(c *gin.Context, movie database.Movie) (string, error) {
 	return "Movie added", nil
 }
 
-func pushActor(c *gin.Context, actor database.Actor) (string, error) {
-
+func pushToDatabase[T any](c *gin.Context, obj T, collectionName string) (string, error) {
 	client, err := database.Cn()
 	if err != nil {
-		log.Println("Error getting client", err)
+		fmt.Printf("Error getting connection")
+		return "Error getting connection", err
 	}
 
-	collection := client.Database("GoCinema").Collection("Actors")
+	collection := client.Database("GoCinema").Collection(collectionName)
 
-	log.Println("got into push Actor!")
-	_, err = collection.InsertOne(c.Request.Context(), actor)
+	_, err = collection.InsertOne(c.Request.Context(), obj)
 	if err != nil {
-		log.Println("Error pushing actor", err)
-		c.JSON(500, gin.H{
-
-			"message": err.Error(),
-		})
+		fmt.Println("Error inserting object", err)
+		return "Encountered error: ", err
 	}
 
-	return "Actor added", nil
+	return "Object inserted!", nil
 
 }

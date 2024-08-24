@@ -15,18 +15,6 @@
             title: "Delete Card",
             href: "panel/delete/"
         },
-        {
-            title: "Write article",
-            href: "panel/add-article/"
-        },
-        {
-            title: "Edit Article",
-            href: "panel/edit-article/"
-        },
-        {
-            title: "Delete Article",
-            href: "panel/delete-article/"
-        }
     ]
 </script>
 
