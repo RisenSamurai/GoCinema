@@ -18,6 +18,7 @@ import (
 
 func AddArticle(c *gin.Context) {
 	var article database.Article
+	log.Println("Inside AddArticle")
 
 	const maxFileSize = 10 << 20
 
