@@ -7,27 +7,29 @@
 
     async function sendArticle() {
 
-        const formdata = new FormData();
+        const formData = new FormData();
 
-        formdata.append("title", title);
-        formdata.append("content", content);
+        formData.append('title', title);
+        formData.append('content', content);
+
+        console.log(preview[0])
 
         if (preview && preview.length > 0) {
-            formdata.append("preview", preview[0], preview[0].name);
+            formData.append('preview', preview[0]);
         } else { console.log("No image"); }
 
         try {
 
             const response = await fetch("http://localhost:8000/add-article", {
                 method: 'POST',
-                body: formdata,
+                body: formData,
 
             })
 
             const data = await response.json();
 
             if (data.success) {
-                message = "Successfully added the article";
+                message = data.message;
             }
 
 
@@ -41,7 +43,7 @@
 
 
 </script>
-<form on:submit|preventDefault={sendArticle} class="flex flex-col w-full">
+<form on:submit|preventDefault={sendArticle} class="flex flex-col w-full" enctype="multipart/form-data">
 
     <h2 class="text-cinema-text">{message}</h2>
     <fieldset class="flex flex-col">

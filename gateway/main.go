@@ -2,6 +2,7 @@ package main
 
 import (
 	"GoCinema/database"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-contrib/cors"
@@ -69,11 +70,40 @@ func main() {
 
 	r.POST("/add-article", func(c *gin.Context) {
 		url := fmt.Sprintf("http://localhost:8082/add-article")
-		resp, err := http.Get(url)
+
+		bodyBytes, err := io.ReadAll(c.Request.Body)
 		if err != nil {
-			log.Println("Error connecting to the service!", err)
+			log.Printf("Error reading request body: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read request body"})
+			return
 		}
+
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(bodyBytes))
+		if err != nil {
+			log.Printf("Error creating request: %v", err)
+		}
+
+		req.Header = c.Request.Header
+
+		client := &http.Client{}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Printf("Error connecting to the service: %v", err)
+		}
+
 		defer resp.Body.Close()
+
+		respBody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("Error reading response body: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response from second API"})
+			return
+		}
+
+		// Forward the response from the second API to the client
+		c.Data(resp.StatusCode, resp.Header.Get("Content-Type"), respBody)
+
 	})
 
 	r.GET("/fetch-main-page-items", func(c *gin.Context) {
