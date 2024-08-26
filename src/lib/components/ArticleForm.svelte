@@ -15,7 +15,7 @@
         console.log(preview[0])
 
         if (preview && preview.length > 0) {
-            formData.append('preview', preview[0]);
+            formData.append('preview', preview[0], preview[0].name);
         } else { console.log("No image"); }
 
         try {
