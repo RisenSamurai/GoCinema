@@ -15,6 +15,10 @@
             title: "Delete Card",
             href: "panel/delete/"
         },
+        {
+            title: "Resume",
+            href: "panel/resume/"
+        },
     ]
 </script>
 

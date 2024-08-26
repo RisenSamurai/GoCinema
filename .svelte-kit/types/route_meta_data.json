@@ -12,6 +12,7 @@
 	],
 	"/admin/panel/delete": [],
 	"/admin/panel/edit": [],
+	"/admin/panel/resume": [],
 	"/movie/[id]": [
 		"src/routes/movie/[id]/+page.server.js"
 	],

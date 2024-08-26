@@ -18,7 +18,6 @@ import (
 
 func AddArticle(c *gin.Context) {
 	var article database.Article
-	log.Println("Inside AddArticle")
 
 	const maxFileSize = 10 << 20
 
@@ -41,7 +40,7 @@ func AddArticle(c *gin.Context) {
 
 	if file != nil {
 
-		uploadDir := filepath.Join("static", "images", "articles", article.Title)
+		uploadDir := filepath.Join("../static", "images", "articles", article.Title)
 
 		_, err := os.Stat(uploadDir)
 		if err != nil {
@@ -69,6 +68,8 @@ func AddArticle(c *gin.Context) {
 		uniqueFilename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
 
 		filePath := filepath.Join(uploadDir, uniqueFilename)
+
+		article.Image = filePath
 
 		err = c.SaveUploadedFile(file, filePath)
 		if err != nil {
