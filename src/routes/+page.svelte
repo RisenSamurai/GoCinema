@@ -1,8 +1,8 @@
 <script>
 
 import HomeMoviesSlider from "$lib/components/HomeMoviesSlider.svelte";
-export let data;
-console.log("items", data.items)
+export let  data;
+
 </script>
 
 <svelte:head>
@@ -12,8 +12,8 @@ console.log("items", data.items)
 
 
 <main class="flex flex-col px-2 bg-cinema-primary">
-    <HomeMoviesSlider header="New Movies" type="movie" items={data.items}/>
-    <HomeMoviesSlider header="Hot News" type="news" />
+    <HomeMoviesSlider header="New Movies" type="movie" items={data.movies}/>
+    <HomeMoviesSlider header="Hot News" type="news" items={data.articles} />
     <HomeMoviesSlider header="TV Shows" type="series"/>
 </main>
 

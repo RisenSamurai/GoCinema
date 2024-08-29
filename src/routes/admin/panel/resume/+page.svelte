@@ -124,6 +124,8 @@
                 <li>NoSQL</li>
                 <li>Svelte/SvelteKit</li>
                 <li>TailWindCSS</li>
+                <li>Redis</li>
+                <li>Docker</li>
             </ul>
         </div>
         <div class="flex flex-col">
@@ -154,3 +156,4 @@
         </div>
     </div>
 </section>
+
