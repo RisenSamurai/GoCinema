@@ -11,6 +11,7 @@
 
 
 
+
     let series = [
         {
             title: "Supernatural",
@@ -26,15 +27,8 @@
         }
     ]
 
-    let articles = [
-        {
-            title: "Tom Cruise and his new movie",
-            poster: "",
-            content: "Tom Cruise is going to release his new movie in the next year.",
-        }
-    ]
 
-    console.log("Movies list", items)
+
 
 </script>
 
@@ -54,9 +48,9 @@
                 <MovieCard  title="{serial.title}" poster="{serial.poster}"/>
             {/each}
             {:else}
-            {#each articles as article}
+            {#each items as article}
 
-                <NewsCard  title="{article.title}" poster="{article.poster}" content="{article.content}"/>
+                <NewsCard  title="{article.Title}" poster="{article.Image}" content="{article.Content}" id="{article.Id}"/>
 
             {/each}
 

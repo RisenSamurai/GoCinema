@@ -15,17 +15,34 @@ import (
 )
 
 func GetItems(c *gin.Context) {
-	items, err := fetchItemsFromMongo(c.Request.Context())
+
+	var movies []database.Movie
+	var articles []database.Article
+
+	// Fetch movies from MongoDB
+	movies, err := fetchAnyFromMongo[database.Movie](c.Request.Context(), "Movies")
 	if err != nil {
-		log.Println("Error fetching items from Mongo: ", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching items from Mongo"})
+		log.Println("Error fetching movies from Mongo: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching movies from Mongo"})
 		return
 	}
 
-	log.Println("Successfully fetched items from Mongo", items)
+	// Fetch articles from MongoDB
+	articles, err = fetchAnyFromMongo[database.Article](c.Request.Context(), "Articles")
+	if err != nil {
+		log.Println("Error fetching articles from Mongo: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching articles from Mongo"})
+		return
+	}
 
-	log.Println("Marshaled", items)
-	c.JSON(http.StatusOK, items)
+	// Log successful fetch
+	log.Println("Successfully fetched movies and articles from Mongo")
+
+	// Return the data to the client
+	c.JSON(http.StatusOK, gin.H{
+		"movies":   movies,
+		"articles": articles,
+	})
 }
 
 func FetchRatingApi(movieID string) (map[string]interface{}, error) {
@@ -108,6 +125,34 @@ func fetchItemFromMongo(ctx context.Context, id string) (database.Movie, error) 
 	}
 
 	return item, nil
+}
+
+func fetchAnyFromMongo[T any](ctx context.Context, collect string) ([]T, error) {
+
+	client, err := database.Cn()
+	if err != nil {
+		log.Println("Error", err)
+		return nil, err
+	}
+
+	collection := client.Database("GoCinema").Collection(collect)
+
+	opts := options.Find().SetLimit(10)
+	cursor, err := collection.Find(ctx, bson.M{}, opts)
+	if err != nil {
+		log.Println("Error fetching movie from Mongo: ", err)
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var items []T
+	if err := cursor.All(ctx, &items); err != nil {
+		log.Println("Error fetching movie from Mongo: ", err)
+		return nil, err
+	}
+
+	return items, nil
+
 }
 
 func fetchItemsFromMongo(ctx context.Context) ([]database.Movie, error) {

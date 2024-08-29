@@ -111,19 +111,26 @@ func main() {
 		resp, err := http.Get(url)
 		if err != nil {
 			log.Println("Error connecting to the service!", err)
-			c.JSON(500, gin.H{"message": "Error connecting to the service"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error connecting to the service"})
 			return
 		}
 		defer resp.Body.Close()
 
-		var movies []database.Movie
-		err = json.NewDecoder(resp.Body).Decode(&movies)
-		if err != nil {
-			log.Printf("Error decoding response: %v", err)
+		var response struct {
+			Movies   []database.Movie   `json:"movies"`
+			Articles []database.Article `json:"articles"`
 		}
 
-		c.JSON(200, gin.H{
-			"data": movies,
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		if err != nil {
+			log.Printf("Error decoding response: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error decoding response"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"movies":   response.Movies,
+			"articles": response.Articles,
 		})
 	})
 
