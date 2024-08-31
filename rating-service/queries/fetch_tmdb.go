@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
-	"github.com/joho/godotenv"
 	"io"
 	"log"
 	"net/http"
@@ -69,12 +68,6 @@ func FetchRating(c *gin.Context) {
 		log.Printf("Failed to create request: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
 		return
-	}
-
-	err = godotenv.Load("config/.env")
-	if err != nil {
-		log.Printf("Error loading .env file: %v", err)
-		// Continue execution, as the API key might be set through other means
 	}
 
 	apiKey := os.Getenv("TMDB_API")

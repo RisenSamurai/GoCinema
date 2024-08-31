@@ -75,10 +75,6 @@ func FetchRatingApi(movieID string) (map[string]interface{}, error) {
 	return result, nil
 }
 
-func HandleMovieRequest(c *gin.Context) {
-
-}
-
 func GetMovie(c *gin.Context) {
 
 	log.Println("Inside GetMovie")
@@ -153,27 +149,4 @@ func fetchAnyFromMongo[T any](ctx context.Context, collect string) ([]T, error) 
 
 	return items, nil
 
-}
-
-func fetchItemsFromMongo(ctx context.Context) ([]database.Movie, error) {
-	client, err := database.Cn() // Database connection
-	if err != nil {
-		log.Println("Can't connect to a database", err)
-	}
-	collection := client.Database("GoCinema").Collection("Movies")
-
-	opts := options.Find().SetLimit(10)
-
-	cursor, err := collection.Find(ctx, bson.M{}, opts)
-	if err != nil {
-		return nil, fmt.Errorf("error fetching items from Mongo: %w", err)
-	}
-	defer cursor.Close(ctx)
-
-	var items []database.Movie
-	if err := cursor.All(ctx, &items); err != nil {
-		return nil, fmt.Errorf("error decoding items from Mongo: %w", err)
-	}
-
-	return items, nil
 }
