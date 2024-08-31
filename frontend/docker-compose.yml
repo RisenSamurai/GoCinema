@@ -3,7 +3,7 @@
 services:
   main:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
@@ -19,8 +19,8 @@ services:
 
   rating-service:
     build:
-      context: .
-      dockerfile: rating-service/Dockerfile
+      context: ..
+      dockerfile: ../rating-service/Dockerfile
     ports:
       - "8081:8081"
     environment:

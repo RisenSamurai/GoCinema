@@ -7,7 +7,7 @@
                 <h2 class="font-bold text-xl text-sky-400 leading-6 mt-6">Work experience</h2>
             </div>
             <div class="flex w-12 h-14">
-                <img class="object-contain" src="/static/go.png" alt="">
+                <img class="object-contain" src="/frontend/static/go.png" alt="">
             </div>
         </div>
         <div class="flex flex-col rounded-lg p-2">
@@ -85,8 +85,8 @@
         </div>
         <div class="flex">
             <ul class="list-disc list-inside mt-2 text-slate-600 leading-6 text-sm">
-                <li>Littleton, Colorado, United States</li>
-                <li>+18-000-00-00</li>
+                <li>Denver, Colorado, United States</li>
+                <li>720-241-3210</li>
                 <li><a href="mailto:boichukworkua@gmail.com">boichukworkua@gmail.com</a></li>
                 <li><a href="www.linkedin.com/in/vladislav-boichuk-5b0b33206">www.linkedin.com/in/vladislav-boichuk-5b0b33206</a></li>
                 <li><a href="https://github.com/RisenSamurai">github.com/RisenSamurai</a></li>

@@ -3,14 +3,14 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"check": "../node_modules/.bin/svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
-		"check:watch": "../node_modules/.bin/svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
+		"dev": "./node_modules/.bin/vite dev",
+		"build": "./node_modules/.bin/vite build",
+		"preview": "./node_modules/.bin/vite preview",
+		"check": "./node_modules/.bin/svelte-kit sync && ../node_modules/.bin/svelte-check --tsconfig ./jsconfig.json",
+		"check:watch": "../node_modules/.bin/svelte-kit sync && ../node_modules/.bin/svelte-check --tsconfig ./jsconfig.json --watch",
 		"test": "../node_modules/.bin/playwright test",
-		"lint": "../node_modules/.bin/prettier --check . && eslint .",
-		"format": "../node_modules/.bin/prettier --write ."
+		"lint": "../node_modules/.bin/prettier --check .. && eslint .",
+		"format": "../node_modules/.bin/prettier --write .."
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
