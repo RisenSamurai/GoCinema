@@ -13,6 +13,9 @@
 	"/admin/panel/delete": [],
 	"/admin/panel/edit": [],
 	"/admin/panel/resume": [],
+	"/article": [
+		"src/routes/article/+page.server.js"
+	],
 	"/movie/[id]": [
 		"src/routes/movie/[id]/+page.server.js"
 	],
