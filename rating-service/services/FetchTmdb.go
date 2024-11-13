@@ -1,13 +1,15 @@
-package queries
+package services
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"rating_microservice/database"
 	"time"
 )
 
@@ -32,7 +34,8 @@ func setDataInRedis(c *gin.Context, key string, value interface{}, expiration ti
 	return redisClient.Set(c.Request.Context(), key, value, expiration).Err()
 }
 
-func FetchRating(c *gin.Context) {
+func FetchRating(c *gin.Context) (interface{}, error) {
+
 	log.Println("Inside FetchRating")
 	id := c.Param("id")
 	cacheKey := "movie:" + id
@@ -50,10 +53,10 @@ func FetchRating(c *gin.Context) {
 		if err := json.Unmarshal([]byte(cachedData), &movieData); err != nil {
 			log.Printf("Failed to parse cached data: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse cached data"})
-			return
+			return "", err
 		}
 		c.JSON(http.StatusOK, movieData)
-		return
+		return "", err
 	} else if err != redis.Nil {
 		log.Printf("Redis error: %v", err)
 	} else {
@@ -67,14 +70,14 @@ func FetchRating(c *gin.Context) {
 	if err != nil {
 		log.Printf("Failed to create request: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
-		return
+		return "", err
 	}
 
 	apiKey := os.Getenv("TMDB_API")
 	if apiKey == "" {
 		log.Println("API key not found")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "API key not found"})
-		return
+		return "", err
 	}
 
 	req.Header.Add("accept", "application/json")
@@ -84,7 +87,7 @@ func FetchRating(c *gin.Context) {
 	if err != nil {
 		log.Printf("Failed to fetch data from API: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch data from API"})
-		return
+		return "", err
 	}
 	defer res.Body.Close()
 
@@ -92,20 +95,20 @@ func FetchRating(c *gin.Context) {
 	if err != nil {
 		log.Printf("Failed to read response body: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response body"})
-		return
+		return "", err
 	}
 
 	if len(body) == 0 {
 		log.Println("Received empty response from API")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Received empty response from API"})
-		return
+		return "", err
 	}
 
 	var movieData map[string]interface{}
 	if err := json.Unmarshal(body, &movieData); err != nil {
 		log.Printf("Failed to parse API response: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse API response"})
-		return
+		return "", err
 	}
 
 	// Process the data if needed
@@ -133,5 +136,35 @@ func FetchRating(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, processedData)
+	return processedData, nil
+
+}
+
+func FetchItems(c *gin.Context) (interface{}, error) {
+	var movies []database.Movie
+	var articles []database.Article
+
+	// Fetch movies from MongoDB
+	movies, err := database.FetchAnyFromMongo[database.Movie](c.Request.Context(), "Movies")
+	if err != nil {
+		log.Println("Error fetching movies from Mongo:", err)
+		return nil, fmt.Errorf("error fetching movies from Mongo")
+	}
+
+	// Fetch articles from MongoDB
+	articles, err = database.FetchAnyFromMongo[database.Article](c.Request.Context(), "Articles")
+	if err != nil {
+		log.Println("Error fetching articles from Mongo:", err)
+		return nil, fmt.Errorf("error fetching articles from Mongo")
+	}
+
+	// Log successful fetch
+	log.Println("Successfully fetched movies and articles from Mongo")
+
+	items := gin.H{
+		"movies":   movies,
+		"articles": articles,
+	}
+
+	return items, nil
 }

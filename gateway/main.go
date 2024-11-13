@@ -2,12 +2,12 @@ package main
 
 import (
 	"GoCinema/database"
+	"GoCinema/routes"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"io"
 	"log"
 	"net/http"
@@ -17,20 +17,15 @@ import (
 func main() {
 	r := gin.Default()
 
-	err := godotenv.Load("../config/.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	serverAddress := os.Getenv("GATEWAY_ADDRESS")
 
-	serverAddress := os.Getenv("SERVER_ADDRESS")
-
-	if err != nil {
-		log.Println("Error connecting to database", err)
-		log.Fatal(err)
-		return
+	if serverAddress == "" {
+		log.Println("WARNING: GATEWAY_ADDRESS environment variable not set")
 	}
 
 	r.Use(cors.Default())
+
+	routes.SetUpRoutes(r)
 
 	r.POST("/add-actor", func(c *gin.Context) {
 		url := fmt.Sprintf("http://localhost:8082/add-actor")
@@ -132,30 +127,6 @@ func main() {
 			"movies":   response.Movies,
 			"articles": response.Articles,
 		})
-	})
-
-	r.GET("/fetch-movie/:id", func(c *gin.Context) {
-		url := fmt.Sprintf("http://localhost:8082/fetch-movie/%v", c.Param("id"))
-		resp, err := http.Get(url)
-		if err != nil {
-			log.Println("Error connecting to the service!", err)
-		}
-
-		defer resp.Body.Close()
-
-		var movie map[string]interface{}
-
-		err = json.NewDecoder(resp.Body).Decode(&movie)
-		if err != nil {
-			log.Printf("Error decoding response: %v", err)
-		}
-
-		log.Println("I send", movie)
-
-		c.JSON(200, gin.H{
-			"movie": movie,
-		})
-
 	})
 
 	r.Static("images/", "./static/")

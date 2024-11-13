@@ -3,17 +3,19 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"rating_microservice/queries"
+	"os"
+	"rating_microservice/routes"
 )
 
 func main() {
 
 	r := gin.Default()
 	log.Println("Microservice is running")
+	ratingAddress := os.Getenv("RATING_ADDRESS")
 
-	r.GET("/get-movie-rating/:id", queries.FetchRating)
+	routes.SetupRatingRoutes(r)
 
-	err := r.Run("localhost:8081")
+	err := r.Run(ratingAddress)
 	if err != nil {
 		println("Error starting server", err)
 		return
