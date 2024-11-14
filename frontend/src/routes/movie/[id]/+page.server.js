@@ -1,19 +1,18 @@
+
 export async function load ({ params, fetch}) {
 
     const { id } = params;
 
-    const response = await fetch(`http://localhost:8000/fetch-movie/${id}`)
+    const response = await fetch(`http://localhost:8080/tmdb/movie/${id}`)
 
+    const data = await response.json();
 
-    if (response.ok) {
-        const { movie, ratings } = await response.json();
-        return {
-            movie: movie,
-            ratings: ratings,
-        }
-    } else {
-        throw new Error(`Could not find movie with id ${id}`);
-    }
+    return {
+        "movie": data.movie,
+        "ratings": data.ratings,
+
+    };
+
 
 
 }
