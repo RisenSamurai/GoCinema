@@ -8,7 +8,7 @@ import (
 func SetupRatingRoutes(router *gin.Engine) {
 	tmdb := router.Group("/fetch")
 	{
-		tmdb.GET("/movie/:id", controllers.GetRating)
+		tmdb.GET("/movie/:id", controllers.GetMovie)
 		tmdb.GET("/fetch-main-page-items", controllers.GetMainPageItems)
 	}
 }

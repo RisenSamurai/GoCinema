@@ -3,6 +3,7 @@ package controllers
 import (
 	"GoCinema/services"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -25,7 +26,7 @@ func GetTmdbPageItem(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": data,
-	})
+	log.Println("Gateway sends page data: ", data)
+
+	c.JSON(http.StatusOK, data)
 }

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"io"
+	"log"
 	"net/http"
 	"os"
 )
@@ -33,7 +33,7 @@ func FetchTmdbMainPage() (interface{}, error) {
 	return items, err
 }
 
-func FetchTmdbPageItem(c *gin.Context) (string, error) {
+func FetchTmdbPageItem(c *gin.Context) (interface{}, error) {
 	ratingAddress := os.Getenv("RATING_ADDRESS")
 
 	url := fmt.Sprintf("http://%s/fetch/movie/%v", ratingAddress, c.Param("id"))
@@ -44,11 +44,12 @@ func FetchTmdbPageItem(c *gin.Context) (string, error) {
 
 	defer response.Body.Close()
 
-	if response.StatusCode != http.StatusOK {
+	var newData interface{}
+	if err != json.NewDecoder(response.Body).Decode(&newData) {
 		return "", errors.New("failed to receive tmdb data")
 	}
 
-	body, err := io.ReadAll(response.Body)
+	log.Println("newData: ", newData)
 
-	return string(body), nil
+	return newData, err
 }
