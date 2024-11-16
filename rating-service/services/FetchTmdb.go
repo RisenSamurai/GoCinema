@@ -1,13 +1,9 @@
 package services
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"log"
-	"net/http"
 	"os"
 	"rating_microservice/database"
 	"rating_microservice/util"
@@ -34,6 +30,10 @@ func initRedis() {
 func setDataInRedis(c *gin.Context, key string, value interface{}, expiration time.Duration) error {
 	return redisClient.Set(c.Request.Context(), key, value, expiration).Err()
 }
+
+//Deprecated code
+
+/*
 
 func FetchRating(c *gin.Context, tmbdbID string) (interface{}, error) {
 
@@ -107,6 +107,9 @@ func FetchRating(c *gin.Context, tmbdbID string) (interface{}, error) {
 
 }
 
+
+
+
 func FetchMovie(c *gin.Context) (interface{}, error) {
 	movieID := c.Param("id")
 
@@ -130,6 +133,10 @@ func FetchMovie(c *gin.Context) (interface{}, error) {
 	return items, nil
 
 }
+
+*/
+
+/*
 
 func FetchItems(c *gin.Context) (interface{}, error) {
 	var movies []database.Movie
@@ -158,4 +165,31 @@ func FetchItems(c *gin.Context) (interface{}, error) {
 	}
 
 	return items, nil
+}
+
+
+*/
+
+func FetchMainPageMovies() ([]database.MainPageMovie, error) {
+
+	url := "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false" +
+		"&language=en-US&page=1&sort_by=popularity.desc"
+
+	apiKey := os.Getenv("TMDB_API")
+
+	data, err := util.FetchTmdbExtraData(apiKey, url, "")
+	if err != nil {
+		log.Println("Error fetching movies from TMDB:", err)
+	}
+
+	var filteredMovies []database.MainPageMovie
+	for _, movie := range data {
+		filteredMovies = append(filteredMovies, database.MainPageMovie{
+			Id:           int(movie["id"].(float64)),
+			BackdropPath: movie["backdrop_path"].(string),
+			Title:        movie["title"].(string),
+		})
+	}
+	return filteredMovies, nil
+
 }

@@ -53,3 +53,25 @@ func FetchTmdbPageItem(c *gin.Context) (interface{}, error) {
 
 	return newData, err
 }
+
+func FetchMainPageMovies() (interface{}, error) {
+	ratingAddress := os.Getenv("RATING_ADDRESS")
+	url := fmt.Sprintf("http://%s/fetch/main-page-movies", ratingAddress)
+
+	response, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+
+	defer response.Body.Close()
+
+	var data interface{}
+
+	if err != json.NewDecoder(response.Body).Decode(&data) {
+		return "", errors.New("failed to receive tmdb data")
+	}
+
+	log.Println("data: ", data)
+
+	return data, nil
+}

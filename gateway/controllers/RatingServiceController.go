@@ -30,3 +30,18 @@ func GetTmdbPageItem(c *gin.Context) {
 
 	c.JSON(http.StatusOK, data)
 }
+
+func GetMainPageMovies(c *gin.Context) {
+	data, err := services.FetchMainPageMovies()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err,
+		})
+	}
+
+	log.Println("Gateway sends main page data: ", data)
+
+	c.JSON(http.StatusOK, gin.H{
+		"movies": data,
+	})
+}

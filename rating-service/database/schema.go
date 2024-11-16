@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Movie struct {
+type DetailedMovie struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name        string             `bson:"name" json:"name"`
 	Year        string             `bson:"year" json:"year"`
@@ -29,7 +29,10 @@ type Movie struct {
 	Created     time.Time          `bson:"created" json:"created"`
 }
 
-type Series struct {
+type MainPageMovie struct {
+	Id           int    `json:"id"`
+	BackdropPath string `json:"backdropPath"`
+	Title        string `json:"title"`
 }
 
 type Actor struct {
