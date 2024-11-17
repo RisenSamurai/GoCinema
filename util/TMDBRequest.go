@@ -2,13 +2,12 @@ package util
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"io"
 	"log"
 	"net/http"
 )
 
-func FetchTmdbExtraData(c *gin.Context, apiKey, url, id string) (interface{}, error) {
+func FetchTmdbExtraData(apiKey, url string) (interface{}, error) {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

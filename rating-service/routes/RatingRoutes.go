@@ -9,6 +9,6 @@ func SetupRatingRoutes(router *gin.Engine) {
 	tmdb := router.Group("/fetch")
 	{
 		tmdb.GET("/main-page-movies", controllers.GetMainPageMovies)
-		tmdb.GET("/movie/:id")
+		tmdb.GET("/movie/:id", controllers.GetMoviePage)
 	}
 }

@@ -7,26 +7,15 @@ import (
 	"net/http"
 )
 
-func GetMainPageItems(c *gin.Context) {
-	data, err := services.FetchTmdbMainPage()
+func GetMoviePage(c *gin.Context) {
+	data, err := services.FetchPageMovie(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
+			"message": err,
 		})
 	}
 
-	c.JSON(http.StatusOK, data)
-}
-
-func GetTmdbPageItem(c *gin.Context) {
-	data, err := services.FetchTmdbPageItem(c)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-	}
-
-	log.Println("Gateway sends page data: ", data)
+	log.Println("Gateway sends MoviePage data: ", data)
 
 	c.JSON(http.StatusOK, data)
 }
@@ -38,8 +27,6 @@ func GetMainPageMovies(c *gin.Context) {
 			"message": err,
 		})
 	}
-
-	log.Println("Gateway sends main page data: ", data)
 
 	c.JSON(http.StatusOK, gin.H{
 		"movies": data,

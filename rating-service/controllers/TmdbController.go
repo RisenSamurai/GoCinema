@@ -18,6 +18,16 @@ import (
 		c.JSON(http.StatusOK, data)
 	}
 */
+
+func GetMoviePage(c *gin.Context) {
+	data, err := services.FetchMoviePage(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(200, data)
+}
+
 func GetMainPageMovies(c *gin.Context) {
 	data, err := services.FetchMainPageMovies()
 	if err != nil {

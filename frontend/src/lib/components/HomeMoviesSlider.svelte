@@ -44,7 +44,7 @@
 
         {#if type === "movie"}
                 {#each items as item}
-                    <MovieCard  title="{item.title}" poster="{baseImgUrl}{imageSize}{item.backdropPath}" link={"/movie/"+item.id}/>
+                    <MovieCard  title="{item.title}" poster="{baseImgUrl}{imageSize}{item.poster_path}" link={"/movie/"+item.id}/>
                 {/each}
         {:else if type === "series"}
             {#each series as serial}

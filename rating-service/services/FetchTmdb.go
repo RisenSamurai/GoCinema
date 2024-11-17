@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"log"
@@ -168,7 +169,22 @@ func FetchItems(c *gin.Context) (interface{}, error) {
 }
 
 
+
 */
+
+func FetchMoviePage(c *gin.Context) ([]map[string]interface{}, error) {
+	url := fmt.Sprintf("https://api.themoviedb.org/3/movie/%v?language=en-US", c.Param("id"))
+
+	apiKey := os.Getenv("TMDB_API")
+
+	data, err := util.FetchTmdbExtraData(apiKey, url)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+
+}
 
 func FetchMainPageMovies() ([]database.MainPageMovie, error) {
 
@@ -177,7 +193,7 @@ func FetchMainPageMovies() ([]database.MainPageMovie, error) {
 
 	apiKey := os.Getenv("TMDB_API")
 
-	data, err := util.FetchTmdbExtraData(apiKey, url, "")
+	data, err := util.FetchTmdbExtraData(apiKey, url)
 	if err != nil {
 		log.Println("Error fetching movies from TMDB:", err)
 	}
@@ -185,9 +201,9 @@ func FetchMainPageMovies() ([]database.MainPageMovie, error) {
 	var filteredMovies []database.MainPageMovie
 	for _, movie := range data {
 		filteredMovies = append(filteredMovies, database.MainPageMovie{
-			Id:           int(movie["id"].(float64)),
-			BackdropPath: movie["backdrop_path"].(string),
-			Title:        movie["title"].(string),
+			Id:         int(movie["id"].(float64)),
+			PosterPath: movie["poster_path"].(string),
+			Title:      movie["title"].(string),
 		})
 	}
 	return filteredMovies, nil

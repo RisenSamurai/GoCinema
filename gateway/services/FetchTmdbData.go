@@ -10,48 +10,26 @@ import (
 	"os"
 )
 
-func FetchTmdbMainPage() (interface{}, error) {
+func FetchPageMovie(c *gin.Context) (interface{}, error) {
 
-	ratingAddress := os.Getenv("RATING_ADDRESS")
+	ratingAddres := os.Getenv("RATING_ADDRESS")
+	url := fmt.Sprintf("http://%s/fetch/movie/%s", ratingAddres, c.Param("id"))
 
-	url := fmt.Sprintf("http://%s/fetch/fetch-main-page-items", ratingAddress)
-	response, err := http.Get(url)
+	resp, err := http.Get(url)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	defer response.Body.Close()
+	defer resp.Body.Close()
 
-	if response.StatusCode != http.StatusOK {
-		return "", errors.New("failed to receive tmdb data")
+	var data interface{}
+
+	if errors.Is(err, json.NewDecoder(resp.Body).Decode(&data)) {
+		return nil, errors.New(data.(string))
 	}
 
-	var items interface{}
+	return data, nil
 
-	err = json.NewDecoder(response.Body).Decode(&items)
-
-	return items, err
-}
-
-func FetchTmdbPageItem(c *gin.Context) (interface{}, error) {
-	ratingAddress := os.Getenv("RATING_ADDRESS")
-
-	url := fmt.Sprintf("http://%s/fetch/movie/%v", ratingAddress, c.Param("id"))
-	response, err := http.Get(url)
-	if err != nil {
-		return "", err
-	}
-
-	defer response.Body.Close()
-
-	var newData interface{}
-	if err != json.NewDecoder(response.Body).Decode(&newData) {
-		return "", errors.New("failed to receive tmdb data")
-	}
-
-	log.Println("newData: ", newData)
-
-	return newData, err
 }
 
 func FetchMainPageMovies() (interface{}, error) {
@@ -67,7 +45,7 @@ func FetchMainPageMovies() (interface{}, error) {
 
 	var data interface{}
 
-	if err != json.NewDecoder(response.Body).Decode(&data) {
+	if !errors.Is(err, json.NewDecoder(response.Body).Decode(&data)) {
 		return "", errors.New("failed to receive tmdb data")
 	}
 

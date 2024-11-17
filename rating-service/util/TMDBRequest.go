@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func FetchTmdbExtraData(apiKey, url, id string) ([]map[string]interface{}, error) {
+func FetchTmdbExtraData(apiKey, url string) ([]map[string]interface{}, error) {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
