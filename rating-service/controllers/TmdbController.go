@@ -6,19 +6,30 @@ import (
 	"rating_microservice/services"
 )
 
-func GetMovie(c *gin.Context) {
-	data, err := services.FetchMovie(c)
+/*
+	func GetMainPageItems(c *gin.Context) {
+		data, err := services.FetchItems(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": err.Error(),
+			})
+		}
+
+		c.JSON(http.StatusOK, data)
+	}
+*/
+
+func GetMoviePage(c *gin.Context) {
+	data, err := services.FetchMoviePage(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	c.JSON(http.StatusOK, data)
+	c.JSON(200, data)
 }
 
-func GetMainPageItems(c *gin.Context) {
-	data, err := services.FetchItems(c)
+func GetMainPageMovies(c *gin.Context) {
+	data, err := services.FetchMainPageMovies()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),

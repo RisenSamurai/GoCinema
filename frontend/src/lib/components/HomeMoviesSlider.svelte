@@ -9,7 +9,10 @@
     export let items;
 
 
+    let baseImgUrl = "https://image.tmdb.org/t/p/";
+    let imageSize = "w780";
 
+    console.log(items);
 
 
     let series = [
@@ -41,7 +44,7 @@
 
         {#if type === "movie"}
                 {#each items as item}
-                    <MovieCard  title="{item.name}" poster="{item.poster}" link={"/movie/"+item.id}/>
+                    <MovieCard  title="{item.title}" poster="{baseImgUrl}{imageSize}{item.poster_path}" link={"/movie/"+item.id}/>
                 {/each}
         {:else if type === "series"}
             {#each series as serial}

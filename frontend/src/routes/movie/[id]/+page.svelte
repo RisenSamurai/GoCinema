@@ -36,7 +36,7 @@
 
     <div class="flex flex-col bg-cinema-gold rounded-lg mt-4 pb-2">
 
-        <span class="flex w-32 h-14 self-center"> <img src="/frontend/statichort-tmdb.svg" alt="tmdb"> </span>
+        <span class="flex w-32 h-14 self-center"> <img src="/static/blue_short-tmdb.svg" alt="tmdb"> </span>
         <div class="flex w-full justify-around font-bold text-cinema-highlight">
             <span class="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg"

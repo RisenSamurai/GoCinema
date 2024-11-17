@@ -1,12 +1,6 @@
 package database
 
-import (
-	"context"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
-)
+/*
 
 func FetchAnyFromMongo[T any](ctx context.Context, collect string) ([]T, error) {
 
@@ -38,7 +32,7 @@ func FetchAnyFromMongo[T any](ctx context.Context, collect string) ([]T, error) 
 
 func FetchItemFromMongo(ctx context.Context, id string) (Movie, error) {
 
-	var item Movie
+	var item Movies
 
 	client, err := Cn() // Database connection
 
@@ -58,3 +52,6 @@ func FetchItemFromMongo(ctx context.Context, id string) (Movie, error) {
 
 	return item, nil
 }
+
+
+*/
