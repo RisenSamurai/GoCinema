@@ -29,7 +29,7 @@ func GetMoviePage(c *gin.Context) {
 }
 
 func GetMainPageMovies(c *gin.Context) {
-	data, err := services.FetchMainPageMovies()
+	data, err := services.FetchMainPageMovies(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
