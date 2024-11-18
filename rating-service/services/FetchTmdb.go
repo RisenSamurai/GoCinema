@@ -1,36 +1,17 @@
 package services
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"log"
 	"os"
 	"rating_microservice/database"
+	"rating_microservice/redis_lib"
 	"rating_microservice/util"
 	"time"
 )
-
-var redisClient *redis.Client
-
-func initRedis() {
-	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // Redis server address
-		Password: "",               // set to your password
-		DB:       0,                // default DB
-	})
-
-	// Test the connection
-	_, err := redisClient.Ping(redisClient.Context()).Result()
-	if err != nil {
-		log.Fatalf("Failed to connect to Redis: %v", err)
-	}
-	log.Println("Successfully connected to Redis")
-}
-
-func setDataInRedis(c *gin.Context, key string, value interface{}, expiration time.Duration) error {
-	return redisClient.Set(c.Request.Context(), key, value, expiration).Err()
-}
 
 //Deprecated code
 
@@ -58,7 +39,7 @@ func FetchRating(c *gin.Context, tmbdbID string) (interface{}, error) {
 			return "", err
 		}
 		return movieData, err
-	} else if !errors.Is(err, redis.Nil) {
+	} else if !errors.Is(err, redis_lib.Nil) {
 		log.Printf("Redis error: %v", err)
 	} else {
 		log.Println("Data not found in cache")
@@ -172,12 +153,12 @@ func FetchItems(c *gin.Context) (interface{}, error) {
 
 */
 
-func FetchMoviePage(c *gin.Context) ([]map[string]interface{}, error) {
-	url := fmt.Sprintf("https://api.themoviedb.org/3/movie/%v?language=en-US", c.Param("id"))
+func FetchMoviePage(c *gin.Context) (interface{}, error) {
+	url := fmt.Sprintf("https://api.themoviedb.org/3/movie/%s?language=en-US", c.Param("id"))
 
 	apiKey := os.Getenv("TMDB_API")
 
-	data, err := util.FetchTmdbExtraData(apiKey, url)
+	data, err := util.FetchMovieDetails(apiKey, url)
 	if err != nil {
 		return nil, err
 	}
@@ -186,26 +167,57 @@ func FetchMoviePage(c *gin.Context) ([]map[string]interface{}, error) {
 
 }
 
-func FetchMainPageMovies() ([]database.MainPageMovie, error) {
+func FetchMainPageMovies(c *gin.Context) ([]database.MainPageMovie, error) {
 
 	url := "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false" +
 		"&language=en-US&page=1&sort_by=popularity.desc"
 
-	apiKey := os.Getenv("TMDB_API")
+	cacheKey := "main_page_movies"
+	cachedData, err := redis_lib.GetDataInRedis(c, cacheKey)
+	if err == redis.Nil {
+		log.Println("Cache miss for main page movies. Fetching from TMDB...")
 
-	data, err := util.FetchTmdbExtraData(apiKey, url)
+		apiKey := os.Getenv("TMDB_API")
+
+		data, err := util.FetchTmdbExtraData(apiKey, url)
+		if err != nil {
+			log.Println("Error fetching movies from TMDB:", err)
+		}
+
+		var filteredMovies []database.MainPageMovie
+		for _, movie := range data {
+			filteredMovies = append(filteredMovies, database.MainPageMovie{
+				Id:         int(movie["id"].(float64)),
+				PosterPath: movie["poster_path"].(string),
+				Title:      movie["title"].(string),
+			})
+		}
+
+		jsonData, err := json.Marshal(filteredMovies)
+		if err != nil {
+			log.Println("Error marshalling movies:", err)
+			return nil, err
+		}
+
+		err = redis_lib.SetDataInRedis(c, cacheKey, jsonData, 1*time.Hour)
+		if err != nil {
+			log.Println("Error caching movies:", err)
+			return nil, err
+		}
+
+		return filteredMovies, nil
+
+	}
+
+	log.Println("Cache hit for main page movies.")
+
+	var cachedMovies []database.MainPageMovie
+
+	err = json.Unmarshal([]byte(cachedData), &cachedMovies)
 	if err != nil {
-		log.Println("Error fetching movies from TMDB:", err)
+		log.Println("Error unmarshalling movies:", err)
 	}
 
-	var filteredMovies []database.MainPageMovie
-	for _, movie := range data {
-		filteredMovies = append(filteredMovies, database.MainPageMovie{
-			Id:         int(movie["id"].(float64)),
-			PosterPath: movie["poster_path"].(string),
-			Title:      movie["title"].(string),
-		})
-	}
-	return filteredMovies, nil
+	return cachedMovies, nil
 
 }

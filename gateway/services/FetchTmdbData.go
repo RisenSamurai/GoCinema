@@ -24,8 +24,8 @@ func FetchPageMovie(c *gin.Context) (interface{}, error) {
 
 	var data interface{}
 
-	if errors.Is(err, json.NewDecoder(resp.Body).Decode(&data)) {
-		return nil, errors.New(data.(string))
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return nil, err
 	}
 
 	return data, nil

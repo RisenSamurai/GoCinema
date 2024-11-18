@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"rating_microservice/redis"
 )
 
 func main() {

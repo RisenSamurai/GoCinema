@@ -8,9 +8,7 @@ export async function load ({ params, fetch}) {
     const data = await response.json();
 
     return {
-        "movie": data.movie,
-        "ratings": data.ratings,
-
+        "movie": data,
     };
 
 
