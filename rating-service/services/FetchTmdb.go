@@ -153,17 +153,78 @@ func FetchItems(c *gin.Context) (interface{}, error) {
 
 */
 
-func FetchMoviePage(c *gin.Context) (interface{}, error) {
+func FetchMoviePage(c *gin.Context) (database.DetailedMovie, error) {
 	url := fmt.Sprintf("https://api.themoviedb.org/3/movie/%s?language=en-US", c.Param("id"))
 
-	apiKey := os.Getenv("TMDB_API")
+	cacheKey := "movie:" + c.Param("id")
 
-	data, err := util.FetchMovieDetails(apiKey, url)
-	if err != nil {
-		return nil, err
+	cachedData, err := redis_lib.GetDataInRedis(c, cacheKey)
+	if err == redis.Nil {
+		log.Println("FetchMoviePage: cache key not found. Fetching from TMDB...")
+
+		apiKey := os.Getenv("TMDB_API")
+
+		data, err := util.FetchMovieDetails(apiKey, url)
+		if err != nil {
+			log.Println("FetchMoviePage: error fetching movie details: ", err)
+		}
+
+		log.Println("FetchMoviePage: fetching movie details", data)
+
+		var detailedMovie database.DetailedMovie
+
+		genres, err := util.ParseGenres[util.Genre](data["genres"])
+		if err != nil {
+			log.Println("FetchMoviePage: error parsing genres: ", err)
+		}
+		countries, err := util.ParseGenres[any](data["production_countries"])
+		if err != nil {
+			log.Println("FetchMoviePage: error parsing genres: ", err)
+		}
+		productionCompanies, err := util.ParseGenres[any](data["production_companies"])
+		if err != nil {
+			log.Println("FetchMoviePage: error parsing genres: ", err)
+		}
+
+		detailedMovie = database.DetailedMovie{
+			Id:                  int(data["id"].(float64)),
+			Title:               data["title"].(string),
+			Budget:              data["budget"].(float64),
+			Language:            data["original_language"].(string),
+			Genres:              genres,
+			Country:             countries,
+			ProductionCompanies: productionCompanies,
+			ReleaseDate:         data["release_date"].(string),
+			Duration:            data["runtime"].(float64),
+			Description:         data["overview"].(string),
+			Popularity:          data["popularity"].(float64),
+			VoteAverage:         data["vote_average"].(float64),
+			VoteCount:           data["vote_count"].(float64),
+			Revenue:             data["revenue"].(float64),
+			Status:              data["status"].(string),
+			Tagline:             data["tagline"].(string),
+			Poster:              data["poster_path"].(string),
+		}
+
+		jsonData, err := json.Marshal(detailedMovie)
+		if err != nil {
+			log.Println("FetchMoviePage: error marshalling detailed movie: ", err)
+		}
+
+		err = redis_lib.SetDataInRedis(c, cacheKey, jsonData, 1*time.Hour)
+		if err != nil {
+			log.Println("FetchMoviePage: error caching movie details: ", err)
+		}
+
+		return detailedMovie, nil
+
 	}
 
-	return data, nil
+	var cachedMovie database.DetailedMovie
+
+	err = json.Unmarshal([]byte(cachedData), &cachedMovie)
+
+	return cachedMovie, nil
 
 }
 

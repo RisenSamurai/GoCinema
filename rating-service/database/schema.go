@@ -2,35 +2,28 @@ package database
 
 import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"rating_microservice/util"
 	"time"
 )
 
 type DetailedMovie struct {
-	Id          int       `json:"id"`
-	Title       string    `json:"title"`
-	Directors   []string  `bson:"directors" json:"directors"`
-	Writers     []string  `bson:"writers" json:"writers"`
-	Producers   []string  `bson:"producers" json:"producers"`
-	Editors     []string  `bson:"editors" json:"editors"`
-	Cameras     []string  `bson:"cameras" json:"cameras"`
-	Genres      []string  `bson:"genres" json:"genres"`
-	Actors      []string  `bson:"actors" json:"actors"`
-	Country     []string  `json:"origin_country"`
-	Keywords    []string  `bson:"keywords" json:"keywords"`
-	Budget      float64   `bson:"budget" json:"budget"`
-	Language    string    `json:"original_language"`
-	ReleaseDate time.Time `json:"release_date"`
-	Duration    float64   `bson:"duration" json:"duration"`
-	Description string    `json:"overview"`
-	Popularity  float64   `json:"popularity"`
-	VoteAverage float64   `json:"vote_average"`
-	VoteCount   float64   `json:"vote_count"`
-	Revenue     float64   `json:"revenue"`
-	Status      string    `json:"status"`
-	Tagline     string    `json:"tagline"`
-	Poster      string    `json:"poster_path"`
-	Images      []string  `bson:"images" json:"backdrop_path"`
-	Created     time.Time `bson:"created" json:"created"`
+	Id                  int          `json:"id"`
+	Title               string       `json:"title"`
+	Country             []any        `json:"production_countries"`
+	Budget              float64      `json:"budget"`
+	Language            string       `json:"original_language"`
+	ReleaseDate         string       `json:"release_date"`
+	Duration            float64      `json:"runtime"`
+	Description         string       `json:"overview"`
+	Popularity          float64      `json:"popularity"`
+	VoteAverage         float64      `json:"vote_average"`
+	VoteCount           float64      `json:"vote_count"`
+	Revenue             float64      `json:"revenue"`
+	Status              string       `json:"status"`
+	Tagline             string       `json:"tagline"`
+	Poster              string       `json:"poster_path"`
+	Genres              []util.Genre `json:"genres"`
+	ProductionCompanies []any        `json:"production_companies"`
 }
 
 type MainPageMovie struct {
