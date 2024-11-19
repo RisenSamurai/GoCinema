@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func FetchMovieDetails(apiKey, url string) (interface{}, error) {
+func FetchMovieDetails(apiKey, url string) (map[string]interface{}, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Printf("Failed to create request: %v", err)
@@ -22,11 +22,17 @@ func FetchMovieDetails(apiKey, url string) (interface{}, error) {
 		log.Printf("Failed to fetch data from API: %v", err)
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(res.Body)
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Printf("Failed to read response body: %v", err)
+
 		return nil, err
 	}
 
@@ -35,7 +41,7 @@ func FetchMovieDetails(apiKey, url string) (interface{}, error) {
 		return nil, err
 	}
 
-	var decodedData interface{}
+	var decodedData map[string]interface{}
 
 	err = json.Unmarshal(body, &decodedData)
 	if err != nil {
@@ -65,7 +71,12 @@ func FetchTmdbExtraData(apiKey, url string) ([]map[string]interface{}, error) {
 		log.Printf("Failed to fetch data from API: %v", err)
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(res.Body)
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {

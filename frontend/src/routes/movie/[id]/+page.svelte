@@ -128,8 +128,8 @@
                 <span class="text-cinema-text">Countries: </span>
             </div>
             <div>
-                <span class="text-cinema-text flex flex-col">{#each data.movie.origin_country as country}
-                    <a href={country} class="flex">{country}</a>
+                <span class="text-cinema-text flex flex-col">{#each data.movie.production_countries as country}
+                    <a href={country.name} class="flex">{country.name}</a>
                 {/each}</span>
             </div>
 
