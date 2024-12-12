@@ -15,22 +15,6 @@
     console.log("items " + items);
 
 
-    let series = [
-        {
-            title: "Supernatural",
-            poster: "/images/posters/Supernatural/1fvjtNHks9SufUVv8XvhGXVpntj.webp",
-        },
-        {
-            title: "Supernatural",
-            poster: "/images/posters/Supernatural/1fvjtNHks9SufUVv8XvhGXVpntj.webp",
-        },
-        {
-            title: "Supernatural",
-            poster: "/images/posters/Supernatural/1fvjtNHks9SufUVv8XvhGXVpntj.webp",
-        }
-    ]
-
-
 
 
 </script>
