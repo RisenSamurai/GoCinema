@@ -1,6 +1,11 @@
 package database
 
-/*
+import (
+	"context"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
+)
 
 func FetchAnyFromMongo[T any](ctx context.Context, collect string) ([]T, error) {
 
@@ -30,6 +35,7 @@ func FetchAnyFromMongo[T any](ctx context.Context, collect string) ([]T, error) 
 
 }
 
+/*
 func FetchItemFromMongo(ctx context.Context, id string) (Movie, error) {
 
 	var item Movies

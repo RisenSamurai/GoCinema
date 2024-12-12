@@ -2,14 +2,26 @@ package services
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
+
 	"sync"
 )
+
+type Movie struct {
+	ID         int    `json:"id"`
+	Title      string `json:"title"`
+	PosterPath string `json:"poster_path"`
+}
+
+type MainPageData struct {
+	Movies   []Movie                  `json:"movies"`
+	Articles []map[string]interface{} `json:"articles"`
+	Series   []map[string]interface{} `json:"series"`
+}
 
 func FetchPageMovie(c *gin.Context) (interface{}, error) {
 
@@ -33,31 +45,31 @@ func FetchPageMovie(c *gin.Context) (interface{}, error) {
 
 }
 
-func FetchData(url string, resultChan chan<- interface{}, errorChan <-chan error, wg *sync.WaitGroup) {
+func FetchData(url string, resultChan chan<- interface{}, errorChan chan<- error, wg *sync.WaitGroup) {
+	defer wg.Done() // This ensures wg.Done() is called no matter what
+
 	resp, err := http.Get(url)
 	if err != nil {
-		resultChan <- err
+		errorChan <- fmt.Errorf("error fetching URL %s: %w", url, err)
+		return
 	}
-
-	resp.Body.Close()
+	defer resp.Body.Close()
 
 	var data interface{}
-
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		resultChan <- err
+		errorChan <- fmt.Errorf("error decoding response from URL %s: %w", url, err)
 		return
 	}
 
 	resultChan <- data
-
 }
 
-func FetchMainPageMovies() (interface{}, error) {
+func FetchMainPageMovies() (MainPageData, error) {
 	ratingAddress := os.Getenv("RATING_ADDRESS")
 
 	moviesUrl := fmt.Sprintf("http://%s/fetch/main-page-movies", ratingAddress)
 	articlesUrl := fmt.Sprintf("http://%s/fetch/articles", ratingAddress)
-	seriesUrl := fmt.Sprintf("http://%s/fetch/series", ratingAddress)
+	seriesUrl := fmt.Sprintf("http://%s/fetch/main-page-series", ratingAddress)
 
 	resultChan := make(chan interface{}, 3)
 	errorChan := make(chan error, 3)
@@ -69,30 +81,55 @@ func FetchMainPageMovies() (interface{}, error) {
 	go FetchData(articlesUrl, resultChan, errorChan, &wg)
 	go FetchData(seriesUrl, resultChan, errorChan, &wg)
 
-	wg.Wait()
+	go func() {
+		wg.Wait()
+		close(resultChan)
+		close(errorChan)
+	}()
 
-	close(resultChan)
-	close(errorChan)
+	var mainPageData MainPageData
 
-	var results []map[string]interface{}
-
+	// Collect results and errors concurrently
 	for result := range resultChan {
 		if resultMap, ok := result.(map[string]interface{}); ok {
-			results = append(results, resultMap)
+			if rawMovies, ok := resultMap["movies"]; ok {
+				jsonBytes, err := json.Marshal(rawMovies)
+				if err != nil {
+					log.Println("Failed to marshal movies to JSON", err)
+				}
+				var movies []Movie
+				err = json.Unmarshal(jsonBytes, &movies)
+				if err != nil {
+					log.Println("Failed to unmarshal movies JSON into struct", err)
+				}
+				mainPageData.Movies = append(mainPageData.Movies, movies...)
+			}
+
+			if rawArticles, ok := resultMap["articles"]; ok {
+				if articles, ok := rawArticles.([]interface{}); ok {
+					for _, article := range articles {
+						if articleMap, ok := article.(map[string]interface{}); ok {
+							mainPageData.Articles = append(mainPageData.Articles, articleMap)
+						}
+					}
+				}
+			}
+
+			if rawSeries, ok := resultMap["series"]; ok {
+				if series, ok := rawSeries.([]interface{}); ok {
+					for _, s := range series {
+						if seriesMap, ok := s.(map[string]interface{}); ok {
+							mainPageData.Series = append(mainPageData.Series, seriesMap)
+						}
+					}
+				}
+			}
 		}
 	}
 
-	if len(results) == 0 {
-		return nil, errors.New("No results")
+	for err := range errorChan {
+		log.Println("Error during data fetch:", err)
 	}
 
-	if len(results) > 1 {
-		for err := range errorChan {
-			log.Println("Error during data fetch", err)
-		}
-
-		return results, errors.New("Some data could not be fetched")
-	}
-
-	return results, nil
+	return mainPageData, nil
 }
