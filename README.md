@@ -24,7 +24,7 @@ GoCinema is a modern web application designed to provide users with an immersive
 - [Node.js](https://nodejs.org/) installed
 - [MongoDB](https://www.mongodb.com/) or your chosen NoSQL database set up
 
-### Backend Setup
+## Backend Setup
 
 1. Clone the repository:
 
@@ -41,18 +41,21 @@ GoCinema is a modern web application designed to provide users with an immersive
   DB_URI=your_database_uri
   JWT_SECRET=your_jwt_secret
 
-### Frontend Setup
+## Frontend Setup
 
 1.	Navigate to the frontend directory:
+
   cd ../frontend
 2.	Install dependencies:
+
   npm install
 
-### Usage
-  1.	Access the frontend at http://localhost:3000.
+## Usage
+
+  	1.	Access the frontend at http://localhost:3000.
 	2.	Register a new account or log in with existing credentials.
 	3.	Browse the movie catalog and enjoy the features of GoCinema.
 
-### License
+## License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
