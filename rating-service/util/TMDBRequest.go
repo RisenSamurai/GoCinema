@@ -98,6 +98,8 @@ func FetchTmdbExtraData(apiKey, url string) ([]map[string]interface{}, error) {
 		return nil, err
 	}
 
+	log.Println("Decoded data:", response.Results)
+
 	return response.Results, nil
 
 }

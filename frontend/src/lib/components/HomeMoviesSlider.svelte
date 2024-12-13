@@ -12,23 +12,7 @@
     let baseImgUrl = "https://image.tmdb.org/t/p/";
     let imageSize = "w780";
 
-    console.log(items);
-
-
-    let series = [
-        {
-            title: "Supernatural",
-            poster: "/images/posters/Supernatural/1fvjtNHks9SufUVv8XvhGXVpntj.webp",
-        },
-        {
-            title: "Supernatural",
-            poster: "/images/posters/Supernatural/1fvjtNHks9SufUVv8XvhGXVpntj.webp",
-        },
-        {
-            title: "Supernatural",
-            poster: "/images/posters/Supernatural/1fvjtNHks9SufUVv8XvhGXVpntj.webp",
-        }
-    ]
+    console.log("items " + items);
 
 
 
@@ -44,11 +28,12 @@
 
         {#if type === "movie"}
                 {#each items as item}
+                    {console.log("item: " + item)}
                     <MovieCard  title="{item.title}" poster="{baseImgUrl}{imageSize}{item.poster_path}" link={"/movie/"+item.id}/>
                 {/each}
         {:else if type === "series"}
-            {#each series as serial}
-                <MovieCard  title="{serial.title}" poster="{serial.poster}"/>
+            {#each items as serial}
+                <MovieCard  title="{serial.original_name}" poster="{baseImgUrl}{imageSize}{serial.poster_path}" link={"/series/"+serial.id} />
             {/each}
             {:else}
             {#each items as article}

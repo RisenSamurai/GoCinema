@@ -124,7 +124,7 @@ func FetchMainPageMovies(c *gin.Context) ([]database.MainPageMovie, error) {
 }
 
 func FetchMainPageSeries(c *gin.Context) ([]map[string]interface{}, error) {
-	url := "https://api.themoviedb.org/3/tv/latest"
+	url := "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1"
 	cacheKey := "main_page_series"
 	cachedData, err := redis_lib.GetDataInRedis(c, cacheKey)
 
@@ -139,7 +139,9 @@ func FetchMainPageSeries(c *gin.Context) ([]map[string]interface{}, error) {
 			return nil, err
 		}
 
-		fieldsToKeep := []string{"id", "poster_path", "title"}
+		log.Println("Unfiltered series fields", data)
+
+		fieldsToKeep := []string{"id", "poster_path", "original_name"}
 
 		filteredSeries, err := util.FilterListData[interface{}](data, fieldsToKeep)
 
@@ -155,6 +157,8 @@ func FetchMainPageSeries(c *gin.Context) ([]map[string]interface{}, error) {
 			return nil, err
 		}
 
+		log.Println("Returning series from TMDB no cache", filteredSeries)
+
 		return filteredSeries, nil
 
 	}
@@ -165,5 +169,44 @@ func FetchMainPageSeries(c *gin.Context) ([]map[string]interface{}, error) {
 		log.Println("Error unmarshalling movies:", err)
 	}
 
+	log.Println("Returning series from TMDB", cachedSeries)
+
 	return cachedSeries, nil
+}
+
+func FetchMainPageArticles(c *gin.Context) ([]database.Article, error) {
+
+	cacheKey := "main_page_articles"
+	cachedData, err := redis_lib.GetDataInRedis(c, cacheKey)
+
+	if err == redis.Nil {
+		log.Println("Cache miss for main page articles. Fetching from TMDB...")
+
+		articles, err := database.FetchAnyFromMongo[database.Article](c, "Articles")
+		if err != nil {
+			log.Println("Error fetching movies:", err)
+		}
+
+		jsonData, err := json.Marshal(articles)
+		if err != nil {
+			log.Println("Error marshalling movies:", err)
+		}
+
+		err = redis_lib.SetDataInRedis(c, cacheKey, jsonData, 1*time.Hour)
+		if err != nil {
+			log.Println("Error caching movies:", err)
+		}
+
+		return articles, nil
+
+	}
+
+	var cachedArticles []database.Article
+	err = json.Unmarshal([]byte(cachedData), &cachedArticles)
+	if err != nil {
+		log.Println("Error unmarshalling movies:", err)
+	}
+
+	return cachedArticles, nil
+
 }

@@ -29,6 +29,6 @@ func GetMainPageMovies(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"movies": data,
+		"data": data,
 	})
 }

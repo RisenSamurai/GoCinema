@@ -23,7 +23,9 @@ func GetMainPageMovies(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, data)
+	c.JSON(http.StatusOK, gin.H{
+		"movies": data,
+	})
 }
 
 func GetMainPageSeries(c *gin.Context) {
@@ -34,5 +36,20 @@ func GetMainPageSeries(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, data)
+	c.JSON(http.StatusOK, gin.H{
+		"series": data,
+	})
+}
+
+func GetMainPageArticles(c *gin.Context) {
+	data, err := services.FetchMainPageArticles(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"articles": data,
+	})
 }

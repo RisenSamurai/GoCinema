@@ -11,7 +11,7 @@ func SetupRatingRoutes(router *gin.Engine) {
 		tmdb.GET("/main-page-movies", controllers.GetMainPageMovies)
 		tmdb.GET("/main-page-series", controllers.GetMainPageSeries)
 		tmdb.GET("/series/:id")
-		tmdb.GET("/articles")
+		tmdb.GET("/articles", controllers.GetMainPageArticles)
 		tmdb.GET("/article/:id")
 		tmdb.GET("/movie/:id", controllers.GetMoviePage)
 	}
