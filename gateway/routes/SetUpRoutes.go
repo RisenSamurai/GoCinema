@@ -15,6 +15,8 @@ func SetUpRoutes(router *gin.Engine) {
 	ratingService := router.Group("/tmdb")
 	{
 		ratingService.GET("/movie/:id", controllers.GetMoviePage)
+		ratingService.GET("/series/:id", controllers.GetSeriesPage)
+		ratingService.GET("/article/:id")
 		ratingService.GET("/main-page-movies", controllers.GetMainPageMovies)
 	}
 }

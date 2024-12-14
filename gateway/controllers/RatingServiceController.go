@@ -32,3 +32,15 @@ func GetMainPageMovies(c *gin.Context) {
 		"data": data,
 	})
 }
+
+func GetSeriesPage(c *gin.Context) {
+	data, err := services.FetchSeriesPage(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err,
+		})
+
+	}
+
+	c.JSON(http.StatusOK, data)
+}
