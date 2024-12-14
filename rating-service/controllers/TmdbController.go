@@ -41,6 +41,17 @@ func GetMainPageSeries(c *gin.Context) {
 	})
 }
 
+func GetSeriesPage(c *gin.Context) {
+	data, err := services.FetchSeriesPage(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusOK, data)
+}
+
 func GetMainPageArticles(c *gin.Context) {
 	data, err := services.FetchMainPageArticles(c)
 	if err != nil {

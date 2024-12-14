@@ -68,6 +68,50 @@ func FetchMoviePage(c *gin.Context) (map[string]interface{}, error) {
 
 }
 
+func FetchSeriesPage(c *gin.Context) (map[string]interface{}, error) {
+	url := fmt.Sprintf("https://api.themoviedb.org/3/tv/%s?language=en-US", c.Param("id"))
+	cacheKey := "series:" + c.Param("id")
+	cachedData, err := redis_lib.GetDataInRedis(c, cacheKey)
+	if err == redis.Nil {
+		log.Println("FetchSeriesPage: cache key not found. Fetching from TMDB...")
+
+		apiKey := os.Getenv("TMDB_API")
+
+		data, err := util.FetchMovieDetails(apiKey, url)
+		if err != nil {
+			log.Println("FetchSeriesPage: error fetching movie details: ", err)
+		}
+
+		fieldsToKeep := []string{"id", "original_name", "budget", "original_language", "genres",
+			"production_companies", "production_countries", "episode_run_time", "first_air_date", "number_of_episodes", "number_of_seasons", "revenue", "overview",
+			"popularity", "vote_average", "vote_count", "poster_path", "release_date",
+		}
+
+		filtered, err := util.FilterData[interface{}](data, fieldsToKeep)
+		if err != nil {
+			log.Println("FetchSeriesPage: error filtering data: ", err)
+		}
+
+		jsonData, err := json.Marshal(filtered)
+		if err != nil {
+			log.Println("FetchSeriesPage: error marshalling data: ", err)
+		}
+
+		err = redis_lib.SetDataInRedis(c, cacheKey, jsonData, 1*time.Hour)
+
+		return filtered, nil
+	}
+
+	var cachedSeries map[string]interface{}
+
+	err = json.Unmarshal([]byte(cachedData), &cachedSeries)
+	if err != nil {
+		log.Println("FetchSeriesPage: error unmarshalling movie details: ", err)
+	}
+
+	return cachedSeries, nil
+}
+
 func FetchMainPageMovies(c *gin.Context) ([]database.MainPageMovie, error) {
 
 	url := "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false" +

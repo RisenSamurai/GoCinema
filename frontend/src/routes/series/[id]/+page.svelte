@@ -17,7 +17,7 @@
 
 
 <svelte:head>
-    <title>GoCinema | {data.movie.title}</title>
+    <title>GoCinema | {data.movie.original_name}</title>
 </svelte:head>
 
 
@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    <Headers title="{data.movie.title}" extra={data.movie.year}/>
+    <Headers title="{data.movie.original_name}" extra={data.movie.year}/>
 
     <MovieSlider images={data.movie.backdrop_path}/>
 
@@ -78,18 +78,7 @@
 
     <div class="flex flex-col bg-cinema-secondary mt-4 rounded-lg">
         <div class="grid grid-cols-2 gap-2 font-semibold text-lg p-2 justify-center items-center">
-            <div class="flex w-full mb-1">
-                <span class="text-cinema-text">Budget:</span>
-            </div>
-            <div>
-                <span class="text-cinema-text">${data.movie.budget}</span>
-            </div>
-            <div class="flex w-full mb-1">
-                <span class="text-cinema-text">Revenue:</span>
-            </div>
-            <div>
-                <span class="text-cinema-text">${data.movie.revenue}</span>
-            </div>
+
             <div class="flex w-full mb-1">
                 <span class="text-cinema-text">Language: </span>
             </div>
@@ -97,16 +86,28 @@
                 <span class="text-cinema-text">{data.movie.original_language}</span>
             </div>
             <div class="flex w-full mb-1">
-                <span class="text-cinema-text">Release Date: </span>
+                <span class="text-cinema-text">First Air Date: </span>
             </div>
             <div>
-                <span class="text-cinema-text">{data.movie.release_date}</span>
+                <span class="text-cinema-text">{data.movie.first_air_date}</span>
             </div>
             <div class="flex w-full mb-1">
-                <span class="text-cinema-text">Runtime: </span>
+                <span class="text-cinema-text">Episode Runtime: </span>
             </div>
             <div>
-                <span class="text-cinema-text">{data.movie.runtime}m</span>
+                <span class="text-cinema-text">{data.movie.episode_run_time}m</span>
+            </div>
+            <div class="flex w-full mb-1">
+                <span class="text-cinema-text">Number of episodes: </span>
+            </div>
+            <div>
+                <span class="text-cinema-text">{data.movie.number_of_episodes}</span>
+            </div>
+            <div class="flex w-full mb-1">
+                <span class="text-cinema-text">Number of seasons: </span>
+            </div>
+            <div>
+                <span class="text-cinema-text">{data.movie.number_of_seasons}</span>
             </div>
             <div class="flex w-full mb-1">
                 <span class="text-cinema-text">Genres: </span>
@@ -128,8 +129,8 @@
                 <span class="text-cinema-text">Countries: </span>
             </div>
             <div>
-                <span class="text-cinema-text flex flex-col">{#each data.movie.origin_country as country}
-                    <a href={country} class="flex">{country}</a>
+                <span class="text-cinema-text flex flex-col">{#each data.movie.production_countries as country}
+                    <a href={country.name} class="flex">{country.name}</a>
                 {/each}</span>
             </div>
 

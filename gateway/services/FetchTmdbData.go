@@ -133,3 +133,27 @@ func FetchMainPageMovies() (MainPageData, error) {
 
 	return mainPageData, nil
 }
+
+func FetchSeriesPage(c *gin.Context) (interface{}, error) {
+
+	ratingAddress := os.Getenv("RATING_ADDRESS")
+
+	url := fmt.Sprintf("http://%s/fetch/series/%s", ratingAddress, c.Param("id"))
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	var data interface{}
+
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+
+}

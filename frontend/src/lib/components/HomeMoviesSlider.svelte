@@ -28,7 +28,6 @@
 
         {#if type === "movie"}
                 {#each items as item}
-                    {console.log("item: " + item)}
                     <MovieCard  title="{item.title}" poster="{baseImgUrl}{imageSize}{item.poster_path}" link={"/movie/"+item.id}/>
                 {/each}
         {:else if type === "series"}
