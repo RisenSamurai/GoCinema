@@ -83,7 +83,7 @@ func FetchSeriesPage(c *gin.Context) (map[string]interface{}, error) {
 		}
 
 		fieldsToKeep := []string{"id", "original_name", "budget", "original_language", "genres",
-			"production_companies", "origin_country", "runtime", "revenue", "overview",
+			"production_companies", "production_countries", "episode_run_time", "first_air_date", "number_of_episodes", "number_of_seasons", "revenue", "overview",
 			"popularity", "vote_average", "vote_count", "poster_path", "release_date",
 		}
 
