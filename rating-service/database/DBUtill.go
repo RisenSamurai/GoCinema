@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 )
@@ -35,20 +36,19 @@ func FetchAnyFromMongo[T any](ctx context.Context, collect string) ([]T, error) 
 
 }
 
-/*
-func FetchItemFromMongo(ctx context.Context, id string) (Movie, error) {
+func FetchItemFromMongo[T any](ctx context.Context, name string, ID string) (T, error) {
 
-	var item Movies
+	var item interface{}
 
 	client, err := Cn() // Database connection
 
-	objectID, err := primitive.ObjectIDFromHex(id)
+	objectID, err := primitive.ObjectIDFromHex(ID)
 	if err != nil {
 		log.Println("Error converting id to ObjectID: ", err)
 		return item, err
 	}
 
-	collection := client.Database("GoCinema").Collection("Movies")
+	collection := client.Database("GoCinema").Collection(name)
 
 	err = collection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&item)
 	if err != nil {
@@ -58,6 +58,3 @@ func FetchItemFromMongo(ctx context.Context, id string) (Movie, error) {
 
 	return item, nil
 }
-
-
-*/
