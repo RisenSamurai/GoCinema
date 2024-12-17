@@ -44,3 +44,14 @@ func GetSeriesPage(c *gin.Context) {
 
 	c.JSON(http.StatusOK, data)
 }
+
+func GetArticlePage(c *gin.Context) {
+	data, err := services.FetchArticlePage(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err,
+		})
+	}
+
+	c.JSON(200, data)
+}

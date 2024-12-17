@@ -157,3 +157,23 @@ func FetchSeriesPage(c *gin.Context) (interface{}, error) {
 	return data, nil
 
 }
+
+func FetchArticlePage(c *gin.Context) (interface{}, error) {
+	ratingAddress := os.Getenv("RATING_ADDRESS")
+
+	resp, err := http.Get(fmt.Sprintf("http://%s/fetch/article/%s", ratingAddress, c.Param("id")))
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	var data interface{}
+
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}

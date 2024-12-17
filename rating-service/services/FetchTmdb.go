@@ -254,3 +254,38 @@ func FetchMainPageArticles(c *gin.Context) ([]database.Article, error) {
 	return cachedArticles, nil
 
 }
+
+func FetchArticlePage(c *gin.Context) (database.Article, error) {
+	cacheKey := "article:" + c.Param("id")
+	cachedData, err := redis_lib.GetDataInRedis(c, cacheKey)
+	if err == redis.Nil {
+		log.Println("Cache miss for article page. Fetching from MongoDB...")
+
+		data, err := database.FetchItemFromMongo[database.Article](c, "Articles", c.Param("id"))
+		if err != nil {
+			log.Println("Error fetching movies:", err)
+		}
+
+		jsonData, err := json.Marshal(data)
+		if err != nil {
+			log.Println("Error marshalling movies:", err)
+		}
+
+		err = redis_lib.SetDataInRedis(c, cacheKey, jsonData, 1*time.Hour)
+		if err != nil {
+			log.Println("Error caching movies:", err)
+		}
+
+		return data, nil
+
+	}
+
+	var cachedArticle database.Article
+
+	err = json.Unmarshal([]byte(cachedData), &cachedArticle)
+	if err != nil {
+		log.Println("Error unmarshalling movies:", err)
+	}
+
+	return cachedArticle, nil
+}
