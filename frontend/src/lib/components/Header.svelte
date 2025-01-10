@@ -1,7 +1,8 @@
 
 
 <script>
-
+import MenuWindow from "$lib/components/MenuWindow.svelte";
+import { openMenu } from "$lib/components/shared.svelte.js";
 
 
 </script>
@@ -23,6 +24,7 @@
     <div class="flex w-2/5 justify-between">
 
 
+
         <button>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                  class="size-7">
@@ -38,12 +40,17 @@
                   1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>
         </button>
-        <button class="">
+        <button class="" onclick={() => openMenu.menuOpen = true}>
             <svg  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                  class="size-8 ">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
         </button>
+
+        {#if openMenu.menuOpen}
+        <MenuWindow />
+
+            {/if}
 
 
     </div>

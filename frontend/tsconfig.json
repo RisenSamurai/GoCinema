@@ -7,8 +7,9 @@
 		"forceConsistentCasingInFileNames": true,
 		"paths": {
 			"$lib/*": ["./src/lib/*"]
-		}
-	},
+		},
+      "jsx": "react"
+    },
 	"include": ["src/**/*"],
 	"exclude": ["node_modules/*", "__sapper__/*", "public/*"]
 }

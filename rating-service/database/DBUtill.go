@@ -38,7 +38,7 @@ func FetchAnyFromMongo[T any](ctx context.Context, collect string) ([]T, error) 
 
 func FetchItemFromMongo[T any](ctx context.Context, name string, ID string) (T, error) {
 
-	var item interface{}
+	var item T
 
 	client, err := Cn() // Database connection
 
