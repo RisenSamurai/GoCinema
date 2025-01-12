@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -24,33 +25,36 @@ func SendRegisterData(c *gin.Context) (interface{}, error) {
 
 	var formData LoginForm
 
-	if err := c.ShouldBind(&formData); err != nil {
+	log.Println("Data received from Front End")
+
+	if err := c.ShouldBindJSON(&formData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	requstData, err := json.Marshal(formData)
+	requestData, err := json.Marshal(formData)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return nil, err
 	}
+	log.Println("Marshaling..")
 
-	resp, err := http.Post("http://localhost:8082/auth/login",
-		"application/json", bytes.NewBuffer(requstData))
+	resp, err := http.Post("http://localhost:8082/auth/sign-up",
+		"application/json", bytes.NewBuffer(requestData))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return nil, err
 	}
 
 	var result map[string]interface{}
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return nil, err
 	}
 
 	return result, nil
