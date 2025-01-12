@@ -1,6 +1,7 @@
 package main
 
 import (
+	"auth-service/routes"
 	"github.com/gin-gonic/gin"
 	"log"
 	"os"
@@ -11,8 +12,10 @@ func main() {
 
 	log.Println("Auth Service is starting...")
 
-	authAddres := os.Getenv("AUTH_ADDRESS")
+	authAddress := os.Getenv("AUTH_ADDRESS")
 
-	r.Run(":" + os.Getenv(authAddres))
+	routes.SetupAuthRoutes(r)
+
+	r.Run(authAddress)
 
 }

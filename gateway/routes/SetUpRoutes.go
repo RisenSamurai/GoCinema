@@ -15,7 +15,7 @@ func SetUpRoutes(router *gin.Engine) {
 	regAuthService := router.Group("/auth")
 	{
 		regAuthService.POST("/login")
-		regAuthService.POST("/register", controllers.GetRegisterResponse)
+		regAuthService.POST("/sign-up", controllers.GetRegisterResponse)
 	}
 
 	ratingService := router.Group("/tmdb")
