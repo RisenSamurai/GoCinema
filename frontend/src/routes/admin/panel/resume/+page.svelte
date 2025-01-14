@@ -1,3 +1,18 @@
+
+<style>
+    .experience {
+        background-color: #f9fafb;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .divider {
+        border-top: 1px dashed #ccc;
+        margin: 20px 0;
+    }
+</style>
 <section class="flex bg-white w-full">
     <div class="flex flex-col p-2 m-2 w-2/3 rounded-lg">
         <div class="flex p-2 mb-2 border-b-2 border-sky-300 justify-between">
@@ -7,10 +22,10 @@
                 <h2 class="font-bold text-xl text-sky-400 leading-6 mt-6">Work experience</h2>
             </div>
             <div class="flex w-12 h-14">
-                <img class="object-contain" src="/frontend/static/go.png" alt="">
+                <img class="object-contain" src="/static/go.png" alt="">
             </div>
         </div>
-        <div class="flex flex-col rounded-lg p-2">
+        <div class="flex flex-col rounded-lg p-2 experience">
             <div class="flex flex-col">
                 <div class="flex flex-col">
                     <span class="font-bold text-slate-600 leading-6">NeoSoft(ネオソフト), Nagoya, Japan (On site)</span>
@@ -29,7 +44,9 @@
                 </ul>
             </div>
         </div>
-        <div class="flex flex-col rounded-lg p-2">
+        <span class="divider"></span>
+
+        <div class="flex flex-col rounded-lg p-2 experience">
             <div class="flex flex-col">
                 <div class="flex flex-col">
                     <span class="font-bold text-slate-600 leading-6">Supplymer, Mariupol, Ukraine (Remote)</span>
@@ -47,7 +64,9 @@
                 </ul>
             </div>
         </div>
-        <div class="flex flex-col rounded-lg p-2 bg-white">
+        <span class="divider"></span>
+
+        <div class="flex flex-col rounded-lg p-2 bg-white experience">
             <div class="flex flex-col">
                 <div class="flex flex-col">
                     <span class="font-bold text-slate-600 leading-6">MVExchange, Tel-Aviv, Israel (Remote)</span>
@@ -101,28 +120,34 @@
             <span class="mt-2 text-l text-slate-400">Hard Skills</span>
             <ul class="list-disc list-inside mt-2 text-slate-600 leading-6 text-sm ml-4">
                 <li>Data design</li>
-                <li>Work with different types of APIs</li>
-                <li>Server side design</li>
-                <li>Site layout</li>
-                <li>Data security</li>
+                <li>Microservice Architecture</li>
+                <li>API</li>
+                <li>Server Side Design</li>
+                <li>Responsive Web Design</li>
+                <li>Data Security</li>
             </ul>
         </div>
         <div class="flex flex-col">
             <span class="mt-2 text-l text-slate-400">Techniques</span>
             <ul class="list-disc list-inside mt-2 text-slate-600 leading-6 text-sm ml-4">
                 <li>API Integration</li>
+                <li>CI/CD Pipelines</li>
                 <li>API Gateway</li>
                 <li>REST API</li>
                 <li>JWT</li>
+                <li>SSR</li>
             </ul>
         </div>
         <div class="flex flex-col">
             <span class="mt-2 text-l text-slate-400">Tools and Software</span>
             <ul class="list-disc list-inside mt-2 text-slate-600 leading-6 text-sm ml-4">
                 <li>Golang</li>
+                <li>Gin Framework</li>
                 <li>MongoDB</li>
-                <li>NoSQL</li>
+                <li>SQL/NoSQL</li>
                 <li>Svelte/SvelteKit</li>
+                <li>NextJS</li>
+                <li>JavaScript/TypeScript</li>
                 <li>TailWindCSS</li>
                 <li>Redis</li>
                 <li>Docker</li>
@@ -133,7 +158,7 @@
             <ul class="list-disc list-inside mt-2 text-slate-600 leading-6 text-sm ml-4">
                 <li>Ukrainian(Native)</li>
                 <li>Russian(Native)</li>
-                <li>English(Professional)</li>
+                <li>English(Fluent)</li>
                 <li>Japanese(Conversational)</li>
             </ul>
         </div>
@@ -142,11 +167,11 @@
             <h2 class="font-bold text-l leading-6 uppercase text-sky-400">Education</h2>
         </div>
         <div class="flex flex-col">
-            <span class="font-bold text-slate-600 leading-6 mt-2">IT Step Computer Academy</span>
+            <span class="font-bold text-slate-600 leading-6 mt-2">IT Step Computer Academy(University)</span>
             <span class="text-sm text-slate-600">Computer Science</span>
             <span class="text-sm text-slate-600">Web Technologies</span>
             <span class="text-sm text-slate-600">Mariupol, Ukraine</span>
-            <span class="text-sm text-slate-600 italic">2015-2018</span>
+            <span class="text-sm text-slate-600 italic">2015-2018(Bachelor's Degree)</span>
         </div>
         <div class="flex border-b border-sky-400 pb-2 mt-4">
             <h2 class="font-bold text-l leading-6 uppercase text-sky-400">Other</h2>
@@ -156,4 +181,5 @@
         </div>
     </div>
 </section>
+
 

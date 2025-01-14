@@ -16,9 +16,34 @@ type LoginForm struct {
 
 func SendLoginData(c *gin.Context) (interface{}, error) {
 
-	var obj interface{}
+	var formData LoginForm
 
-	return obj, nil
+	if err := c.ShouldBindJSON(&formData); err != nil {
+		log.Println(err.Error())
+	}
+
+	requestData, err := json.Marshal(formData)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	resp, err := http.Post("http://127.0.0.1:8000/login", "application/json", bytes.NewBuffer(requestData))
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	var result map[string]interface{}
+
+	err = json.Unmarshal(body, &result)
+
+	return result, nil
 }
 
 func SendRegisterData(c *gin.Context) (interface{}, error) {
