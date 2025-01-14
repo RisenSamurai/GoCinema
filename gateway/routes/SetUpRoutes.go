@@ -14,7 +14,7 @@ func SetUpRoutes(router *gin.Engine) {
 
 	regAuthService := router.Group("/auth")
 	{
-		regAuthService.POST("/login")
+		regAuthService.POST("/sign-in", controllers.GetAuthToken)
 		regAuthService.POST("/sign-up", controllers.GetRegisterResponse)
 	}
 

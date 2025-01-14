@@ -1,54 +1,56 @@
-
-
 <script>
-    import {goto} from "$app/navigation";
-
-    let email = $state();
-    let password = $state();
-    let confirmPassword = $state();
+    import { isLogged } from "../store.js";
     let message = $state('');
 
-    import {isLogged} from "../store.js";
+    let email = $state('');
+    let password = $state('');
+    let confirmPassword = $state('');
 
-    if(isLogged === true) {
-        goto('http://localhost:5173/');
-    }
 
-    async function handleSubmit(event) {
-        event.preventDefault();
-        
+
+   async function handleSubmit(e) {
+        e.preventDefault();
+
+
         if(password === confirmPassword) {
-            const response = await fetch('/sign-up', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password}),
-            })
 
-            const result = await response.json();
-            if(result.success){
-                console.log(result.data);
-            } else {
-                console.log("Error occurred");
+            try {
+
+                const request = await fetch("/sign-in", {
+                    method: "POST",
+                    body: JSON.stringify({email, password, confirmPassword}),
+                    headers: { "Content-Type": "application/json" },
+                });
+
+                const data = await request.json();
+
+                if(request.status === 200) {
+                    const JWT = data.token;
+                    sessionStorage.setItem("JWT", JWT);
+                    isLogged.set(true);
+
+                } else {
+                    console.log("Error logged in!", data.error);
+
+                }
+
+            } catch (e) {
+                console.error(e.message);
+                $message = e.message;
+                throw e;
             }
-        } else {
-            message = 'Passwords do not match';
+
+
         }
-
-
-
     }
-
-
 </script>
 
 
 
 <div class="flex flex-col bg-cinema-secondary justify-center h-screen text-white self-center">
-
     {#if message}<span>{message}</span>{/if}
     <form onsubmit={handleSubmit} class="flex flex-col justify-center self-center">
+
         <label for="email">Email</label>
         <input class="text-black" type="email" id="email" name="email" bind:value={email} required/>
         <label for="password">Password</label>
@@ -64,5 +66,4 @@
     <div class="flex self-center">
         <span>Google</span>
     </div>
-
 </div>
